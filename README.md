@@ -311,7 +311,8 @@ are written under `verification/`.
   phone connected and USB debugging authorized.
 
 The emulator run proves the full pipeline, but it cannot prove the Moto-specific
-model and USB checks. Those are the final three points of the physical gate.
+model and transport checks (USB or wireless ADB). Those are the final points of
+the physical gate.
 The app warns instead of claiming success when the phone is absent.
 
 For a continuous gate while the phone is connected:

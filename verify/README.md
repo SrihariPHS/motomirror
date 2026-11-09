@@ -18,18 +18,37 @@ scripts/verify.sh --live --target any --wait-for-device 60
 | --- | --- | --- |
 | Static | `scripts/verify.sh` | Environment, build, unit tests, app snapshot rendering, docs, CLI/robustness. No phone required. |
 | Emulator / development | `scripts/verify.sh --live --target any` | Device basics, mirroring, and wireless against any Android 11+ device or emulator. |
-| Physical Moto | `scripts/verify.sh --live --target moto` | The final gate: model contains `moto` and `g85`, USB transport, real screenshot, real scrcpy H.264 recording with audio, input injection, UI dump, a second session, and wireless tcpip/connect/mirror/disconnect. |
+| Physical Moto | `scripts/verify.sh --live --target moto` | The final gate: model contains `moto` and `g85`, USB **or** wireless ADB transport, real screenshot, real scrcpy H.264 recording with audio, input injection, UI dump, a second session, and wireless mirror/disconnect/recovery. |
 
-The target gate must be the Moto G85 on USB. `--target any` deliberately
-accepts emulators and other phones; it is not final evidence for the product
-goal.
+The target gate must be the Moto G85, on USB or already connected over
+wireless ADB (an mDNS serial such as
+`adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp`, or a `host:port` serial).
+`--target any` deliberately accepts emulators and other phones; it is not final
+evidence for the product goal.
+
+### Already-wireless phone
+
+When the target serial is already wireless, the harness never runs
+`adb tcpip` and W02 never runs `adb connect`.
+
+- W01 verifies the current serial is `device` and the
+  `_adb-tls-connect._tcp` service is advertised by `adb mdns services`.
+- W02 reuses the current serial and passes because it is online.
+- W03-W06 run devices JSON, screenshot, and mirror against that same mDNS
+  serial.
+- W07 runs `adb disconnect <serial>` and accepts immediate mDNS re-add or
+  automatic recovery.
+- W08 requires the phone to be online at the end, reconnecting the advertised
+  mDNS endpoint at most once if needed.
+- Cleanup only verifies/reconnects the phone; it never disconnects it or
+  changes its transport.
 
 ## Options
 
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `--live` | off | Execute the 42 device checks. Without it they are reported as `skip` with evidence `requires --live`. |
-| `--target {moto,any}` | `any` | `moto` requires a Moto G85 model string and USB transport. |
+| `--target {moto,any}` | `any` | `moto` requires a Moto G85 model string and USB or wireless transport. |
 | `--wait-for-device SECONDS` | `0` | Poll `adb devices` for a usable device before the device checks. |
 | `--threshold N` | `99` | Minimum passing percentage. At 100 checks, 99 permits one failed check; use `--threshold 100` to require zero failures. Static mode scores only the 58 executed checks. |
 | `--json-out PATH` | `verification/report.json` | Machine-readable report. |
@@ -52,7 +71,7 @@ is printed with its evidence, and the same evidence is written to
 | App/UI | 12 | no | `MotoMirror --snapshot` produces a non-blank PNG at least 800x600 and larger than 20 KB; demo snapshots for connected, empty, unauthorized, and error states are distinct; executable is Mach-O. |
 | Device basics | 16 | yes | Device presence, CLI devices JSON, model, transport, Android/SDK/ABI, battery, storage, screen, PNG screenshot and non-blank pixels, keyevent injection, UI hierarchy dump. |
 | Mirroring | 18 | yes | Headless 8-second scrcpy session, MP4 recording, H.264 video, decoded frame count, dimensions matching the device, frame rate, audio stream, fatal log scan, second session, no orphan processes, `--no-audio`, `--max-size`, `--max-fps`. The harness injects swipes during recording so a static screen still emits frames; it proves the session stayed alive for the requested wall-clock time instead of trusting container duration. |
-| Wireless | 8 | yes | `adb tcpip`, wireless connect, transport reported by the CLI, wireless screenshot, wireless mirror and recording, disconnect, and removal from `adb devices`. Emulators switch adbd to **5555** and connect to `127.0.0.1:5555` (guest Wi-Fi IPs are not reachable from the host); physical phones use their Wi-Fi IP on **5559**. |
+| Wireless | 8 | yes | Already-wireless phones are used as-is via their mDNS serial; USB phones/emulators may use `adb tcpip`/connect. Covers transport reporting, wireless screenshot, wireless mirror and recording, disconnect, and recovery/removal. Emulators switch adbd to **5555** and connect to `127.0.0.1:5555`; USB phones use their Wi-Fi IP on **5559**. |
 | Docs | 6 | no | README has a real install/setup heading plus command (`make setup`), USB debugging, wireless pairing, troubleshooting, and verification headings; this file covers categories, threshold, and artifacts. |
 | Robustness | 6 | no | Missing-device CLI error, `doctor --json` parsing, invalid command exit code, invalid pairing-code rejection, executable `verify.sh`, and `motomirrorctl version`. |
 

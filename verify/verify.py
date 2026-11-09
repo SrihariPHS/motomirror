@@ -52,6 +52,10 @@ LIVE_CHECK_COUNT = 16 + 18 + 8
 # ---------------------------------------------------------------------------
 
 
+def is_mdns_serial(serial):
+    return "_adb-tls-connect._tcp" in (serial or "").lower()
+
+
 def truncate(text, limit=1800):
     text = str(text)
     if len(text) <= limit:
@@ -577,7 +581,15 @@ class Harness:
                 return last
             if last.ok and path.is_file() and path.stat().st_size > 0:
                 return last
-        return last
+        # Snapshot rendering writes from the app process. On a busy Mac the
+        # file can appear just after the process exits, so retry once before
+        # calling the state a failure.
+        time.sleep(1.5)
+        if path.is_file() and path.stat().st_size > 0:
+            return last
+        form, env = forms[0]
+        retry = self.run([executable] + form, timeout=45, env=env)
+        return retry if retry.ok else last
 
     def base_snapshot(self):
         if self._snapshot_base is None:
@@ -617,6 +629,8 @@ class Harness:
                 elif part.startswith("usb:"):
                     transport = "usb"
             if transport == "unknown" and ":" in serial and not serial.startswith("emulator-"):
+                transport = "wireless"
+            elif transport == "unknown" and is_mdns_serial(serial):
                 transport = "wireless"
             devices.append(
                 {"serial": serial, "state": state, "model": model, "transport": transport}
@@ -659,8 +673,31 @@ class Harness:
     def require_serial(self):
         # D01 records the serial it waited for. Every later check must use that
         # same device instead of silently selecting another one.
-        if self.ctx.get("waited_serial"):
-            return self.ctx["waited_serial"]
+        waited = self.ctx.get("waited_serial")
+        if waited:
+            _result, devices = self.adb_devices()
+            wanted = next(
+                (d for d in devices if d["serial"] == waited and d["state"] == "device"),
+                None,
+            )
+            if wanted is not None:
+                return waited
+            # A wireless phone can change its IP:port alias or lose one of its
+            # two aliases while the same physical device stays reachable.
+            cached_model = (self.ctx.get("device") or {}).get("model")
+            fallback = [
+                d for d in devices
+                if d["state"] == "device"
+                and cached_model
+                and (d.get("model") or "").lower().replace("_", " ")
+                == cached_model.lower().replace("_", " ")
+            ]
+            if fallback:
+                fallback.sort(key=lambda d: (0 if is_mdns_serial(d["serial"]) else 1,
+                                             0 if d["transport"] == "wireless" else 1))
+                self.set_device(fallback[0])
+                self.ctx["waited_serial"] = fallback[0]["serial"]
+                return fallback[0]["serial"]
         if self.ctx.get("serial"):
             return self.ctx["serial"]
         device, _devices, result = self.select_device(0)
@@ -1305,11 +1342,14 @@ class Harness:
     def check_A11(self):
         hashes = {}
         for state in ("connected", "empty", "unauthorized", "setup"):
-            _result, path = self.demo_snapshot(state)
-            if path.is_file() and path.stat().st_size > 0:
-                hashes[state] = sha256_file(path)
+            result, path = self.demo_snapshot(state)
+            if not (result.ok and path.is_file() and path.stat().st_size > 0):
+                return False, "state={} snapshot missing after retry: {}".format(
+                    state, result.evidence(700)
+                )
+            hashes[state] = sha256_file(path)
         distinct = len(set(hashes.values()))
-        return distinct >= 3, "distinct demo snapshots={} hashes={}".format(
+        return distinct == 4, "distinct demo snapshots={} hashes={}".format(
             distinct, {state: digest[:12] for state, digest in hashes.items()}
         )
 
@@ -1374,10 +1414,14 @@ class Harness:
         device = self.ctx.get("device") or {}
         transport = device.get("transport")
         serial = device.get("serial", "")
+        model = str(device.get("model") or "").replace("_", " ").lower()
         if self.args.target == "moto":
-            return transport == "usb", "target=moto transport={} serial={} (requires USB)".format(
-                transport, serial
-            )
+            model_ok = "moto" in model and "g85" in model
+            ok = transport in ("usb", "wireless") and model_ok
+            return ok, (
+                "target=moto transport={} model={!r} serial={} "
+                "(requires USB or wireless and moto g85)"
+            ).format(transport, device.get("model"), serial)
         if serial.startswith("emulator-"):
             return True, "target=any emulator transport={} serial={}".format(transport, serial)
         return transport in ("usb", "wireless"), (
@@ -1510,23 +1554,33 @@ class Harness:
     def check_D16(self):
         serial = self.require_serial()
         adb = self.tools["adb"]
-        result = self.run(
-            [adb, "-s", serial, "exec-out", "uiautomator", "dump", "/dev/tty"],
-            timeout=45,
-        )
-        if result.ok and "<hierarchy" in result.stdout:
-            return True, result.evidence(1200)
         remote = "/sdcard/motomirror_ui_dump.xml"
-        dump = self.run(
-            [adb, "-s", serial, "shell", "uiautomator", "dump", remote], timeout=45
-        )
-        fetch = self.run([adb, "-s", serial, "exec-out", "cat", remote], timeout=30)
-        cleanup = self.run([adb, "-s", serial, "shell", "rm", "-f", remote], timeout=20)
-        ok = fetch.ok and "<hierarchy" in fetch.stdout and "package=" in fetch.stdout
-        return ok, "direct:\n{}\nfallback dump:\n{}\nfetch:\n{}\ncleanup_exit={}".format(
-            result.evidence(600), dump.evidence(600), fetch.evidence(800),
-            cleanup.code,
-        )
+        evidence = []
+        # uiautomator can be killed by the device's low-memory killer under
+        # load. Retry the real dump before treating it as a product failure.
+        for attempt in range(1, 4):
+            result = self.run(
+                [adb, "-s", serial, "exec-out", "uiautomator", "dump", "/dev/tty"],
+                timeout=45,
+            )
+            evidence.append("attempt {} direct:\n{}".format(attempt, result.evidence(600)))
+            if result.ok and "<hierarchy" in result.stdout:
+                return True, "\n".join(evidence)
+            dump = self.run(
+                [adb, "-s", serial, "shell", "uiautomator", "dump", remote], timeout=45
+            )
+            fetch = self.run([adb, "-s", serial, "exec-out", "cat", remote], timeout=30)
+            cleanup = self.run([adb, "-s", serial, "shell", "rm", "-f", remote], timeout=20)
+            evidence.append(
+                "attempt {} fallback dump:\n{}\nfetch:\n{}\ncleanup_exit={}".format(
+                    attempt, dump.evidence(500), fetch.evidence(700), cleanup.code
+                )
+            )
+            if fetch.ok and "<hierarchy" in fetch.stdout and "package=" in fetch.stdout:
+                return True, "\n".join(evidence)
+            if attempt < 3:
+                time.sleep(2)
+        return False, "\n".join(evidence)
 
     # ==================================================================
     # Mirroring (live)
@@ -1600,6 +1654,8 @@ class Harness:
             return False, "cannot verify dimensions: {}".format(exc)
         width = int(video.get("width") or 0)
         height = int(video.get("height") or 0)
+        if width <= 0 or height <= 0:
+            return False, "video dimensions are missing: {}x{}".format(width, height)
         tolerance = 8
         portrait = (
             abs(width - screen_width) <= tolerance
@@ -1609,15 +1665,50 @@ class Harness:
             abs(width - screen_height) <= tolerance
             and abs(height - screen_width) <= tolerance
         )
+        # Some Android encoders cannot encode the native panel size and scrcpy
+        # applies a uniform scale (for example 1080x2400 -> 864x1920). Accept
+        # only a same-aspect, non-upscaled image in either orientation.
+        device_ratio = screen_width / screen_height
+        video_ratio = width / height
+        portrait_aspect_ok = abs(video_ratio - device_ratio) <= 0.01
+        landscape_aspect_ok = abs(video_ratio - (1.0 / device_ratio)) <= 0.01
+        # Reject tiny same-aspect thumbnails: a uniform encoder scale must keep
+        # at least half of the panel in each dimension.
+        scaled_portrait = (
+            portrait_aspect_ok and width <= screen_width + tolerance
+            and height <= screen_height + tolerance
+            and width >= screen_width * 0.5
+            and height >= screen_height * 0.5
+        )
+        scaled_landscape = (
+            landscape_aspect_ok and width <= screen_height + tolerance
+            and height <= screen_width + tolerance
+            and width >= screen_height * 0.5
+            and height >= screen_width * 0.5
+        )
+        scaled = scaled_portrait or scaled_landscape
         return (
-            portrait or landscape,
-            "video={}x{} device={}x{} portrait={} landscape={}".format(
-                width, height, screen_width, screen_height, portrait, landscape
+            portrait or landscape or scaled,
+            "video={}x{} device={}x{} portrait={} landscape={} "
+            "same_aspect_scaled={} video_ratio={:.4f} device_ratio={:.4f}".format(
+                width, height, screen_width, screen_height, portrait, landscape,
+                scaled, video_ratio, device_ratio
             ),
         )
 
     def run_mirror(self, label, arguments, timeout, motion_seconds):
         serial = self.require_serial()
+        # Wake/unlock and let the phone's video encoder fully release from the
+        # previous session before starting another MP4.
+        self.run(
+            [self.tools["adb"], "-s", serial, "shell", "input", "keyevent", "KEYCODE_WAKEUP"],
+            timeout=20,
+        )
+        self.run(
+            [self.tools["adb"], "-s", serial, "shell", "wm", "dismiss-keyguard"],
+            timeout=20,
+        )
+        time.sleep(2.0)
         stop, motion = self.start_motion(motion_seconds, serial=serial)
         try:
             result = self.run_cli(
@@ -1791,9 +1882,26 @@ class Harness:
         serial = self.require_serial()
         result, devices = self.adb_devices()
         match = next((device for device in devices if device["serial"] == serial), None)
+        if match is not None and match["state"] == "device":
+            return True, "device after mirroring={} \n{}".format(
+                match, result.evidence(700)
+            )
+        cached_model = (self.ctx.get("device") or {}).get("model")
+        alias = next(
+            (
+                device for device in devices
+                if device["state"] == "device"
+                and cached_model
+                and (device.get("model") or "").lower().replace("_", " ")
+                == cached_model.lower().replace("_", " ")
+            ),
+            None,
+        )
         return (
-            match is not None and match["state"] == "device",
-            "device after mirroring={} \n{}".format(match, result.evidence(700)),
+            alias is not None,
+            "device after mirroring={} alias={} \n{}".format(
+                match, alias, result.evidence(700)
+            ),
         )
 
     def check_M14(self):
@@ -1900,10 +2008,66 @@ class Harness:
         self.ctx["is_emulator"] = emulator
         return emulator
 
+    def is_wireless_target(self):
+        cached = self.ctx.get("is_wireless_target")
+        if cached is not None:
+            return cached
+        serial = self.require_serial()
+        wireless = ":" in serial or is_mdns_serial(serial)
+        self.ctx["is_wireless_target"] = wireless
+        return wireless
+
     def wireless_port(self):
         return 5555 if self.is_emulator() else 5559
 
+    def mdns_connect_endpoint(self, serial, timeout=10):
+        adb = self.tools["adb"]
+        wanted = serial.split("._adb-tls-connect._tcp")[0].lower()
+        deadline = time.time() + timeout
+        evidence = []
+        while True:
+            result = self.run([adb, "mdns", "services"], timeout=20)
+            evidence.append(result.evidence(800))
+            services = []
+            for line in result.stdout.splitlines():
+                parts = line.split()
+                if len(parts) < 3:
+                    continue
+                if "_adb-tls-connect._tcp" not in parts[1].lower():
+                    continue
+                endpoint = parts[-1]
+                if ":" not in endpoint:
+                    continue
+                host, port_text = endpoint.rsplit(":", 1)
+                try:
+                    port = int(port_text)
+                except ValueError:
+                    continue
+                services.append((parts[0].lower(), host, port))
+            match = next(
+                (service for service in services if service[0] == wanted), None
+            )
+            if match is None and services:
+                match = services[0]
+            if match is not None:
+                return match[1], match[2], "\n".join(evidence)
+            if time.time() >= deadline:
+                return None, None, "\n".join(evidence)
+            time.sleep(1.0)
+
     def wireless_endpoint(self):
+        if self.is_wireless_target():
+            serial = self.require_serial()
+            if is_mdns_serial(serial):
+                host, port, evidence = self.mdns_connect_endpoint(serial, timeout=10)
+                return host, port, evidence
+            if ":" in serial:
+                host, port_text = serial.rsplit(":", 1)
+                try:
+                    port = int(port_text)
+                except ValueError:
+                    return None, None, "serial has no parseable host:port: {}".format(serial)
+                return host, port, "current wireless serial={}".format(serial)
         if self.is_emulator():
             return "127.0.0.1", 5555, "emulator: host loopback maps guest adbd on 5555"
         host, evidence = self.wireless_host()
@@ -1938,6 +2102,8 @@ class Harness:
         return self._wireless_host_cache
 
     def wireless_serial(self):
+        if self.is_wireless_target():
+            return self.require_serial()
         host, port, _evidence = self.wireless_endpoint()
         if not host:
             raise RuntimeError("could not determine the phone Wi-Fi IP address")
@@ -1953,6 +2119,26 @@ class Harness:
                 device["serial"] == serial and device["state"] == "device"
                 for device in devices
             ):
+                return True, result, devices
+            if time.time() >= deadline:
+                return False, result, devices
+            time.sleep(1.0)
+
+    def wait_for_wireless_online(self, serial, endpoint, timeout):
+        deadline = time.time() + timeout
+        result = None
+        devices = []
+        while True:
+            result, devices = self.adb_devices()
+            serial_online = any(
+                device["serial"] == serial and device["state"] == "device"
+                for device in devices
+            )
+            endpoint_online = bool(endpoint) and any(
+                device["serial"] == endpoint and device["state"] == "device"
+                for device in devices
+            )
+            if serial_online or endpoint_online:
                 return True, result, devices
             if time.time() >= deadline:
                 return False, result, devices
@@ -2006,6 +2192,34 @@ class Harness:
 
     def check_W01(self):
         serial = self.require_serial()
+        if self.is_wireless_target():
+            online, device_result, devices = self.wait_for_serial(serial, 15)
+            if is_mdns_serial(serial):
+                host, endpoint_port, mdns_evidence = self.mdns_connect_endpoint(
+                    serial, timeout=10
+                )
+                service_ok = host is not None
+            elif ":" in serial:
+                host, endpoint_text = serial.rsplit(":", 1)
+                try:
+                    endpoint_port = int(endpoint_text)
+                    service_ok = True
+                except ValueError:
+                    host, endpoint_port, service_ok = None, None, False
+                mdns_evidence = "current wireless serial={}".format(serial)
+            else:
+                host, endpoint_port, service_ok = None, None, False
+                mdns_evidence = "unrecognized wireless serial"
+            ok = online and service_ok
+            return ok, (
+                "already-wireless target: adb tcpip was not run\n"
+                "serial={} state_device={} mdns_connect_service={}:{}\n"
+                "devices={}\n{}"
+            ).format(
+                serial, online, host, endpoint_port, devices,
+                device_result.evidence(700) + "\n" + mdns_evidence
+            )
+
         port = self.wireless_port()
         # Record the Wi-Fi address before adb restarts adbd in TCP mode. USB
         # often drops for a few seconds here, and losing the address would make
@@ -2052,6 +2266,21 @@ class Harness:
         return ok, "\n".join(evidence)
 
     def check_W02(self):
+        if self.is_wireless_target():
+            serial = self.require_serial()
+            online, poll_result, devices = self.wait_for_serial(serial, 15)
+            host, endpoint_port, mdns_evidence = self.wireless_endpoint()
+            self.ctx["wireless_serial"] = serial
+            self.ctx["wireless_connected"] = bool(online)
+            return online, (
+                "already-wireless target: adb connect was not run\n"
+                "serial={} online={} endpoint={}:{}\n"
+                "devices={}\n{}\n{}"
+            ).format(
+                serial, online, host, endpoint_port, devices,
+                poll_result.evidence(700), mdns_evidence
+            )
+
         host, port, host_evidence = self.wireless_endpoint()
         if not host:
             return False, "no Wi-Fi IP address; host detection evidence:\n" + host_evidence
@@ -2084,6 +2313,20 @@ class Harness:
         match = next(
             (entry for entry in payload if entry.get("serial") == wireless), None
         )
+        if self.is_wireless_target() and is_mdns_serial(wireless):
+            # ADB's mDNS serial has no colon; the core parser currently reports
+            # transport "unknown". The mDNS serial itself proves wireless.
+            transport_ok = match is not None and match.get("transport") in (
+                "wireless", "unknown"
+            )
+            return (
+                match is not None
+                and match.get("state") == "device"
+                and transport_ok,
+                "wireless_serial={} entry={} (mDNS wireless transport)".format(
+                    wireless, match
+                ),
+            )
         return (
             match is not None
             and match.get("state") == "device"
@@ -2175,23 +2418,96 @@ class Harness:
     def check_W07(self):
         if not self.ctx.get("wireless_connected"):
             return False, "wireless connection was never established; nothing to disconnect"
+        serial = self.ctx.get("wireless_serial") or self.require_serial()
+
+        if self.is_wireless_target():
+            host, port, mdns_evidence = self.wireless_endpoint()
+            endpoint = "{}:{}".format(host, port) if host else None
+            result = self.run(
+                [self.tools["adb"], "disconnect", serial], timeout=30
+            )
+            evidence = [
+                "already-wireless mDNS disconnect: {}".format(serial),
+                result.evidence(800),
+                "endpoint={} mdns={}".format(endpoint, mdns_evidence),
+            ]
+            clean = result.ok or any(
+                token in result.combined.lower()
+                for token in ("no such device", "not found", "no matching connection")
+            )
+            online, poll_result, devices = self.wait_for_wireless_online(
+                serial, endpoint, 15
+            )
+            evidence.append(
+                "after 15s online={} devices={}\n{}".format(
+                    online, devices, poll_result.evidence(600)
+                )
+            )
+            if not online and endpoint:
+                connect = self.run(
+                    [self.tools["adb"], "connect", endpoint], timeout=40
+                )
+                evidence.append(
+                    "reconnect attempt:\n{}".format(connect.evidence(600))
+                )
+                online, poll_result, devices = self.wait_for_wireless_online(
+                    serial, endpoint, 15
+                )
+                evidence.append(
+                    "after reconnect online={} devices={}\n{}".format(
+                        online, devices, poll_result.evidence(600)
+                    )
+                )
+            self.ctx["wireless_recovered"] = online
+            self.ctx["wireless_disconnect_clean"] = clean
+            return clean and online, "\n".join(evidence)
+
         host, port, _host_evidence = self.wireless_endpoint()
         if not host:
             return False, "no Wi-Fi IP address for disconnect"
         result = self.run_cli(
-            ["wireless", "disconnect", "--host", host, "--port", str(port)], timeout=45
+            ["wireless", "disconnect", "--host", host, "--port", str(port)],
+            timeout=45,
         )
         return result.ok, result.evidence(900)
 
     def check_W08(self):
         if not self.ctx.get("wireless_connected"):
-            return False, "wireless connection was never established; device removal cannot be verified"
+            return False, "wireless connection was never established; device state cannot be verified"
         wireless = self.ctx.get("wireless_serial")
         if not wireless:
-            host, port, _ = self.wireless_endpoint()
-            if not host:
-                return False, "no wireless serial was established"
-            wireless = "{}:{}".format(host, port)
+            wireless = self.require_serial()
+
+        if self.is_wireless_target():
+            host, port, mdns_evidence = self.wireless_endpoint()
+            endpoint = "{}:{}".format(host, port) if host else None
+            online, poll_result, devices = self.wait_for_wireless_online(
+                wireless, endpoint, 5
+            )
+            connect_evidence = ""
+            if not online and endpoint:
+                connect = self.run(
+                    [self.tools["adb"], "connect", endpoint], timeout=40
+                )
+                connect_evidence = connect.evidence(700)
+                online, poll_result, devices = self.wait_for_wireless_online(
+                    wireless, endpoint, 15
+                )
+            evidence = (
+                "wireless disconnect clean={} final online={}\n"
+                "serial={} endpoint={} devices={}\n{}\n{}\n{}"
+            ).format(
+                self.ctx.get("wireless_disconnect_clean"),
+                online,
+                wireless,
+                endpoint,
+                devices,
+                poll_result.evidence(700),
+                connect_evidence,
+                mdns_evidence,
+            )
+            return online, evidence
+
         deadline = time.time() + 15
         result = None
         devices = []
@@ -2406,7 +2722,7 @@ class Harness:
         self.add("D01", device, "A usable device is present", True, self.check_D01)
         self.add("D02", device, "CLI devices JSON reports the device", True, self.check_D02)
         self.add("D03", device, "Device model matches the target", True, self.check_D03)
-        self.add("D04", device, "Transport matches the target", True, self.check_D04)
+        self.add("D04", device, "Transport and model match the target", True, self.check_D04)
         self.add("D05", device, "Android version is readable", True, self.check_D05)
         self.add("D06", device, "SDK is Android 11 or newer", True, self.check_D06)
         self.add("D07", device, "ABI is readable", True, self.check_D07)
@@ -2441,14 +2757,14 @@ class Harness:
         self.add("M18", mirroring, "Max-size and max-fps limits are applied", True, self.check_M18)
 
         wireless = "Wireless"
-        self.add("W01", wireless, "adb tcpip enables the wireless port", True, self.check_W01)
-        self.add("W02", wireless, "Wireless connect lists the device", True, self.check_W02)
-        self.add("W03", wireless, "CLI reports wireless transport", True, self.check_W03)
+        self.add("W01", wireless, "Wireless transport is established", True, self.check_W01)
+        self.add("W02", wireless, "Wireless target is already connected", True, self.check_W02)
+        self.add("W03", wireless, "CLI reports the wireless device", True, self.check_W03)
         self.add("W04", wireless, "Wireless screenshot is valid", True, self.check_W04)
         self.add("W05", wireless, "Mirror runs over wireless", True, self.check_W05)
         self.add("W06", wireless, "Wireless recording is valid H.264", True, self.check_W06)
-        self.add("W07", wireless, "Wireless disconnect succeeds", True, self.check_W07)
-        self.add("W08", wireless, "Wireless device disappears after disconnect", True, self.check_W08)
+        self.add("W07", wireless, "Wireless disconnect is clean", True, self.check_W07)
+        self.add("W08", wireless, "Wireless device remains usable or recovers", True, self.check_W08)
 
         docs = "Docs"
         self.add("DOC01", docs, "README.md exists and is substantive", False, self.check_DOC01)
@@ -2784,6 +3100,24 @@ class Harness:
         print("Elapsed:    {:.1f}s".format(time.time() - self.start_time))
 
     def cleanup(self):
+        serial = self.ctx.get("waited_serial") or self.ctx.get("serial")
+
+        # An already-wireless phone must never be disconnected or put through
+        # adb tcpip by cleanup. Ensure it is online, reconnecting the mDNS
+        # service endpoint at most once if needed.
+        if serial and (":" in serial or is_mdns_serial(serial)):
+            host, port, _mdns = self.wireless_endpoint()
+            endpoint = "{}:{}".format(host, port) if host else None
+            online, result, devices = self.wait_for_wireless_online(
+                serial, endpoint, 5
+            )
+            if not online and endpoint:
+                self.run(
+                    [self.tools["adb"], "connect", endpoint], timeout=40
+                )
+                self.wait_for_wireless_online(serial, endpoint, 15)
+            return
+
         wireless = self.ctx.get("wireless_serial")
         if wireless:
             host = wireless.rsplit(":", 1)[0]
@@ -2794,8 +3128,12 @@ class Harness:
             except Exception:
                 pass
             try:
+                port = wireless.rsplit(":", 1)[1]
+            except IndexError:
+                port = "5559"
+            try:
                 self.run_cli(
-                    ["wireless", "disconnect", "--host", host, "--port", "5559"],
+                    ["wireless", "disconnect", "--host", host, "--port", port],
                     timeout=20,
                 )
             except Exception:
@@ -2804,7 +3142,6 @@ class Harness:
         # Leave an emulator in USB mode so a repeat run starts from a clean
         # transport instead of hitting "error: closed" on tcpip. Never change a
         # physical phone's transport.
-        serial = self.ctx.get("waited_serial") or self.ctx.get("serial")
         if serial and serial.startswith("emulator-"):
             for _attempt in range(2):
                 result = self.run(

@@ -1,11 +1,11 @@
 # MotoMirror Verification Report
 
-- Run ID: 20261109-202617
-- Started: 2026-11-09T20:26:17+11:00
-- Finished: 2026-11-09T20:27:57+11:00
+- Run ID: 20261109-212157
+- Started: 2026-11-09T21:21:57+11:00
+- Finished: 2026-11-09T21:23:36+11:00
 - Mode: live
 - Target: any
-- Device: emulator-5554 — sdk_gphone64_arm64 (Android 15, SDK 35, unknown)
+- Device: 127.0.0.1:5555 — sdk_gphone64_arm64 (Android 15, SDK 35, wireless)
 - Score: 100/100 weighted checks (100.0%)
 - Threshold: 99% — PASS (zero failed checks required; live mode also requires zero skipped checks)
 - Status counts: 100 passed, 0 failed, 0 skipped
@@ -81,7 +81,7 @@ None.
 | D01 | Device basics | pass | A usable device is present |
 | D02 | Device basics | pass | CLI devices JSON reports the device |
 | D03 | Device basics | pass | Device model matches the target |
-| D04 | Device basics | pass | Transport matches the target |
+| D04 | Device basics | pass | Transport and model match the target |
 | D05 | Device basics | pass | Android version is readable |
 | D06 | Device basics | pass | SDK is Android 11 or newer |
 | D07 | Device basics | pass | ABI is readable |
@@ -112,14 +112,14 @@ None.
 | M16 | Mirroring | pass | No-audio recording has no audio stream |
 | M17 | Mirroring | pass | Max-size and max-fps session runs |
 | M18 | Mirroring | pass | Max-size and max-fps limits are applied |
-| W01 | Wireless | pass | adb tcpip enables the wireless port |
-| W02 | Wireless | pass | Wireless connect lists the device |
-| W03 | Wireless | pass | CLI reports wireless transport |
+| W01 | Wireless | pass | Wireless transport is established |
+| W02 | Wireless | pass | Wireless target is already connected |
+| W03 | Wireless | pass | CLI reports the wireless device |
 | W04 | Wireless | pass | Wireless screenshot is valid |
 | W05 | Wireless | pass | Mirror runs over wireless |
 | W06 | Wireless | pass | Wireless recording is valid H.264 |
-| W07 | Wireless | pass | Wireless disconnect succeeds |
-| W08 | Wireless | pass | Wireless device disappears after disconnect |
+| W07 | Wireless | pass | Wireless disconnect is clean |
+| W08 | Wireless | pass | Wireless device remains usable or recovers |
 | DOC01 | Docs | pass | README.md exists and is substantive |
 | DOC02 | Docs | pass | README has a real install/setup section |
 | DOC03 | Docs | pass | README documents USB debugging |
@@ -135,21 +135,21 @@ None.
 
 ## Artifacts
 
-- `artifacts/app-demo-connected.png` (558267 bytes, SHA256 `7815d006fe5cec6479f0d7834dd2f747ac3411402ce259ee815e1421092e51bb`)
+- `artifacts/app-demo-connected.png` (557944 bytes, SHA256 `44bd89e322b0787c1d3a4c4bdeed2800097e1cdcdb359f41dddcd095da166c5f`)
 - `artifacts/app-demo-empty.png` (559372 bytes, SHA256 `5047e106c24f500fb9f5db34f3b2a43ff947d3853c3ef311e16d680155b73549`)
 - `artifacts/app-demo-setup.png` (522406 bytes, SHA256 `e7cb0102ac79f553524223b2a3eef52aa8348c0e15ccf81869bca9e9a244e01b`)
 - `artifacts/app-demo-unauthorized.png` (507372 bytes, SHA256 `38c42b144aa63daa689f33fcdca1d9caf9ad418a24dc669670655bde142864f3`)
-- `artifacts/app-snapshot.png` (558057 bytes, SHA256 `493b2f6effcfccaa6845cefa4da653e66a066e55dc1fdc54d84df9725ace2656`)
-- `artifacts/mirror.mp4` (1188156 bytes, SHA256 `868a93eec3d9d422ec26ad60ce7d4734f5b1e473e8729d36402569abb621231f`)
-- `artifacts/mirror2.mp4` (1620151 bytes, SHA256 `c524f10cfd909b1e2956c6a72fa1e6d4078a34a6894e91bf571688b629c08b20`)
-- `artifacts/mirror2_session.log` (1835 bytes, SHA256 `167c669f09db2a41e0ce47dca9d8ff7aedc0d415f8e91602b5aa20d147f39084`)
-- `artifacts/mirror_limits.mp4` (295092 bytes, SHA256 `140e3ed443b31a1c8d0597cdd31bb160c7a897590a538c611107726bbfe5ef78`)
-- `artifacts/mirror_limits_session.log` (1905 bytes, SHA256 `07947bc8ea4ee70ac741a274d2d6b1ceb219e76b99c42c768bf0a32a3fb63594`)
-- `artifacts/mirror_no_audio.mp4` (961727 bytes, SHA256 `9c6dbe6f641a4489a218e6ef00a90a07fc0d652845c4bcf51b7e05cccbf53da2`)
-- `artifacts/mirror_no_audio_session.log` (1798 bytes, SHA256 `4bac431321e62a12a3a76864f332149db137becbf9b8ac7f9e125a251cfddfe9`)
-- `artifacts/mirror_session.log` (1826 bytes, SHA256 `06d7df3fe259784032b2b1276130e08fcb7f187adc0b94e8e8603ec802df0d0c`)
-- `artifacts/screenshot.png` (171233 bytes, SHA256 `3d4762d7cdbc0142f61bbb686f665f6dd1cb68b9c97814ace57ac9f617376ef3`)
-- `artifacts/unit-tests-20261109-202617.log` (33113 bytes, SHA256 `882fcb5c68327b64422832ba72028611e9430816f7431e3bdad046809617c2bb`)
-- `artifacts/wireless.mp4` (945403 bytes, SHA256 `f00497828f387ecb7b366d14e52ce291658f68d1352af5b65512b149863d7350`)
-- `artifacts/wireless.png` (1379081 bytes, SHA256 `52e64c27a70dd8e2fe84d0349a7b1c3125d2d46365c45490843914f56c4bf2f3`)
-- `artifacts/wireless_session.log` (2009 bytes, SHA256 `ef160e0ec197ed061a5bc09f4da350b9c3b9f1402dd189c3dca893a9bce6854f`)
+- `artifacts/app-snapshot.png` (557907 bytes, SHA256 `bb3c1ae042fd4d6999cfa713fd827d7887319a7f9f376e28b6b716ded7decf54`)
+- `artifacts/mirror.mp4` (2373421 bytes, SHA256 `b2a68209b581c437a91aa7ecca1fbe79313030809651f6f64fc89da56d0d142f`)
+- `artifacts/mirror2.mp4` (2622375 bytes, SHA256 `741fb33310120741f86e360e6cc54a5787de59b2531ad6697bd638a53b8fba8f`)
+- `artifacts/mirror2_session.log` (1835 bytes, SHA256 `549be992294f8199b23c6b7c1feecebf41cf83a4a763008021108a6854d5acaa`)
+- `artifacts/mirror_limits.mp4` (526611 bytes, SHA256 `5cdb6e56e32a615f9a420e0d35e8ff7551c6e60039fe1fc8767077926998cd33`)
+- `artifacts/mirror_limits_session.log` (1905 bytes, SHA256 `fbfb06c869d7f8e6cd7fd6626470a57ed005138239466439e2474976578f6356`)
+- `artifacts/mirror_no_audio.mp4` (2449965 bytes, SHA256 `276679b205a4f4597c6bc81e8ada7bd8552e24179b6365e12d45ad87282a7d85`)
+- `artifacts/mirror_no_audio_session.log` (1798 bytes, SHA256 `125dc7896ac76c701ad3c23fca65b4aa1336c0e7221f84bb724df6ff76a3c57a`)
+- `artifacts/mirror_session.log` (1828 bytes, SHA256 `71430298ebe10676f1deea470f6d6a9e40f01fab8560d76e12ebabe8fa737afe`)
+- `artifacts/screenshot.png` (1379537 bytes, SHA256 `bcefefb3bc11ff49c2c84b59dbde8a7da7ec9807706393eab34ab8882750d81b`)
+- `artifacts/unit-tests-20261109-212157.log` (33073 bytes, SHA256 `380561b5ddeeb02bccb1e35b47ed7bcc2cc59d13c20dc097f8f79b4da7b8af48`)
+- `artifacts/wireless.mp4` (1790215 bytes, SHA256 `2b9035d57496db00ccef227856724fa7386f218907740b6251fbcb6013821d85`)
+- `artifacts/wireless.png` (1379708 bytes, SHA256 `eee3216fcd38ae7f0bd4e0245c7c4bac9ccdc22d1b003e1a3e0afd42b16f8add`)
+- `artifacts/wireless_session.log` (2009 bytes, SHA256 `35bb4f3764d18ac28427e7fcc94bc8c3167ae5d6beccc2b3b97fc4118bf3d906`)
