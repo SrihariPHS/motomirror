@@ -12,7 +12,7 @@ battery life.
 - Current: sampled once per second from
   `/sys/class/power_supply/battery/current_now`.
 - FPS: parsed from scrcpy `--print-fps`.
-- Network: `wlan0` byte counters.
+- Network throughput was not used. Android 16 denied the `wlan0` sysfs counter path; the committed `perf.json` has `tx_mbps: 0` and it should be ignored.
 - Screen state: screen-on runs opened Settings and looped a scroll gesture to
   create motion. Screen-off runs kept the display off and the screen static.
 - The values below are averages of the two run averages. The range is the
@@ -92,6 +92,7 @@ runs, and turns the screen off for screen-off runs. Do not run it unattended.
 - Screen-off profiles were static. Their 12–17 FPS does not predict interactive
   mirroring.
 - Battery current is reported by the phone and is coarse.
+- Network throughput is not part of this table. The helper now reads `wlan0` from `/proc/net/dev` for future runs, but this run did not record it.
 - The native-size run used a fallback path. Do not compare it to explicit sizes.
 - H.265 has too little data to recommend. It is excluded from the presets.
 - Temperature, background apps, signal strength, and Android version can move

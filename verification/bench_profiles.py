@@ -79,11 +79,24 @@ class Phone:
     def home(self):
         self.shell("input keyevent KEYCODE_HOME")
 
+    def net_tx(self):
+        # Android 16 denies /sys/class/net/wlan0/statistics/tx_bytes to shell.
+        output = self.shell("cat /proc/net/dev").stdout
+        for line in output.splitlines():
+            if line.strip().startswith("wlan0:"):
+                parts = line.replace(":", " ").split()
+                if len(parts) > 9:
+                    try:
+                        return int(parts[9])
+                    except ValueError:
+                        return None
+        return None
+
     def battery(self):
         return {
             "current_uA": self.read_int("/sys/class/power_supply/battery/current_now"),
             "charge_uAh": self.read_int("/sys/class/power_supply/battery/charge_counter"),
-            "tx_bytes": self.read_int("/sys/class/net/wlan0/statistics/tx_bytes"),
+            "tx_bytes": self.net_tx(),
             "temperature": self.read_int("/sys/class/power_supply/battery/temp"),
         }
 
