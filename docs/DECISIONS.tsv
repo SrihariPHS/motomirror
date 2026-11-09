@@ -1,0 +1,7 @@
+ts	phase	decision	why	evidence	result
+2026-11-09T03:04:48Z	frame	Built a native SwiftUI app around scrcpy 5.0.1	The target is one MacBook Air and scrcpy is the proven Android mirror transport	scrcpy --version; xcodebuild -version	scaffold committed to disk
+2026-11-09T03:04:48Z	harness	Defined a 100-check verification suite with a live 99/100 gate	The user asked for a real-life test at 99/100, so the score must come from executed checks	reqs-manifest.md R17-R19	harness in progress
+2026-11-09T03:04:48Z	fanout	Split the build across five workers with disjoint files	Parallel work is safe only when workers do not write the same files	five background goal-worker sessions	running
+2026-11-09T03:04:48Z	env	Installed scrcpy 5.0.1 and Android platform-tools 37.0.2	Both were missing and both are required for mirroring	brew install scrcpy android-platform-tools	installed
+2026-11-09T03:04:48Z	live	Plan an Android emulator run while the physical Moto is absent	No Android device is on USB; the emulator can prove the full pipeline before the physical gate	ioreg USB device list showed no phone	emulator setup in progress
+2026-11-09T03:04:48Z	env	Installed Android command-line tools and OpenJDK 21 for an emulator	The SDK is the only way to run a full live mirror test without the phone	sdkmanager; openjdk@21	installing

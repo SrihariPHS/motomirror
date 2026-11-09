@@ -1,0 +1,7 @@
+.build/
+.build-*/
+*.app/
+verification/*.mp4
+verification/*.png
+verification/*.json
+.DS_Store
