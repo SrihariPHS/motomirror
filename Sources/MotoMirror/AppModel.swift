@@ -11,6 +11,8 @@ enum MMDefaults {
     static let scrcpyPath = "MotoMirror.scrcpyPath"
     static let recordingFolder = "MotoMirror.recordingFolder"
     static let wirelessEndpoint = "MotoMirror.wirelessEndpoint"
+    static let wirelessSerial = "MotoMirror.wirelessSerial"
+    static let preset = "MotoMirror.preset"
 }
 
 // MARK: - Log entries
@@ -42,8 +44,11 @@ final class AppModel: ObservableObject {
     @Published private(set) var lastRefresh: Date?
 
     // Mirror
+    @Published var preset: MirrorPreset {
+        didSet { presetDidChange(from: oldValue) }
+    }
     @Published var options: ScrcpyOptions {
-        didSet { persistOptions() }
+        didSet { optionsDidChange(from: oldValue) }
     }
     @Published private(set) var status = ScrcpyStatus()
     @Published private(set) var isReconnecting = false
@@ -58,6 +63,11 @@ final class AppModel: ObservableObject {
     @Published private(set) var isDiscoveringWireless = false
     @Published private(set) var wirelessDiscoveryMessage: String?
     @Published private(set) var storedWirelessEndpoint: WirelessEndpoint?
+
+    // Tailscale
+    @Published private(set) var tailscalePeers: [TailscalePeer] = []
+    @Published private(set) var isDiscoveringTailscale = false
+    @Published private(set) var tailscaleMessage: String?
 
     // Tools
     @Published private(set) var toolchain: Toolchain?
@@ -103,6 +113,11 @@ final class AppModel: ObservableObject {
     private var lastDetailsError: String?
     private var lastWirelessConnectAttempt: Date?
     private var preferredInitialSerial: String?
+    private var storedWirelessSerial: String?
+    private var wirelessEndpointCache: [String: WirelessEndpoint] = [:]
+    private var mirroringModel: String?
+    private var mirroringProduct: String?
+    private var isApplyingPreset = false
 
     init(
         adb: any ADBServicing,
@@ -116,11 +131,48 @@ final class AppModel: ObservableObject {
         self.scrcpy = scrcpy
         self.toolchain = toolchain
         self.isDemoMode = demoMode
-        self.options = options ?? Self.loadOptions()
+
+        let defaults = UserDefaults.standard
+        let storedPreset = defaults
+            .string(forKey: MMDefaults.preset)
+            .flatMap(MirrorPreset.init(rawValue:))
+        let storedOptions = Self.loadOptions()
+
+        let initialPreset: MirrorPreset
+        let initialOptions: ScrcpyOptions
+        let shouldMigrate: Bool
+
+        if demoMode {
+            initialPreset = .balanced
+            initialOptions = options ?? MirrorPreset.balanced.options ?? .default
+            shouldMigrate = false
+        } else if let storedPreset {
+            initialPreset = storedPreset
+            initialOptions = storedPreset.options ?? options ?? storedOptions
+            shouldMigrate = false
+        } else {
+            initialPreset = .balanced
+            initialOptions = MirrorPreset.balanced.options ?? options ?? storedOptions
+            shouldMigrate = true
+        }
+
+        self.preset = initialPreset
+        self.options = initialOptions
         self.recordingFolder = recordingFolder
-            ?? UserDefaults.standard.string(forKey: MMDefaults.recordingFolder)
+            ?? defaults.string(forKey: MMDefaults.recordingFolder)
             ?? ""
         self.storedWirelessEndpoint = demoMode ? nil : Self.loadWirelessEndpoint()
+        self.storedWirelessSerial = demoMode ? nil : defaults.string(forKey: MMDefaults.wirelessSerial)
+
+        if shouldMigrate {
+            defaults.set(MirrorPreset.balanced.rawValue, forKey: MMDefaults.preset)
+            if let data = try? JSONEncoder().encode(initialOptions) {
+                defaults.set(data, forKey: MMDefaults.options)
+            }
+            let message = "Preset migrated to Balanced to reduce battery use"
+            appendLog(message, level: .info)
+            FileHandle.standardOutput.write(Data((message + "\n").utf8))
+        }
     }
 
     // MARK: - Factories
@@ -146,7 +198,6 @@ final class AppModel: ObservableObject {
                 ),
                 toolchain: toolchain,
                 demoMode: false,
-                options: loadOptions(),
                 recordingFolder: recordingFolder
             )
         }
@@ -156,7 +207,6 @@ final class AppModel: ObservableObject {
             scrcpy: UnavailableScrcpyService(),
             toolchain: nil,
             demoMode: false,
-            options: loadOptions(),
             recordingFolder: recordingFolder
         )
     }
@@ -176,18 +226,6 @@ final class AppModel: ObservableObject {
             scrcpy: demoSrcpy,
             toolchain: toolchain,
             demoMode: true,
-            options: ScrcpyOptions(
-                maxSize: 1080,
-                videoBitRateMbps: 8,
-                maxFPS: 60,
-                audioEnabled: true,
-                stayAwake: true,
-                turnScreenOff: false,
-                showTouches: false,
-                alwaysOnTop: false,
-                fullscreen: false,
-                recordEnabled: false
-            ),
             recordingFolder: ""
         )
 
@@ -223,9 +261,13 @@ final class AppModel: ObservableObject {
         return devices.first { $0.serial == mirroringSerial }
     }
 
-    private var mirroringWirelessEndpoint: WirelessEndpoint? {
-        guard let mirroringSerial else { return nil }
-        return WirelessEndpoint(serial: mirroringSerial)
+    private var isMirroringWireless: Bool {
+        guard let mirroringSerial else { return false }
+        return isWirelessSerial(mirroringSerial)
+    }
+
+    private var hasWirelessRecoveryHint: Bool {
+        storedWirelessEndpoint != nil || (storedWirelessSerial.map(isWirelessSerial) ?? false)
     }
 
     var isWaitingForMirrorDevice: Bool {
@@ -489,13 +531,22 @@ final class AppModel: ObservableObject {
         }
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: MMDefaults.options)
+        defaults.removeObject(forKey: MMDefaults.preset)
         defaults.removeObject(forKey: MMDefaults.adbPath)
         defaults.removeObject(forKey: MMDefaults.scrcpyPath)
         defaults.removeObject(forKey: MMDefaults.recordingFolder)
         defaults.removeObject(forKey: MMDefaults.wirelessEndpoint)
-        options = .default
+        defaults.removeObject(forKey: MMDefaults.wirelessSerial)
+
+        let balancedOptions = MirrorPreset.balanced.options ?? .default
+        isApplyingPreset = true
+        preset = .balanced
+        options = balancedOptions
+        isApplyingPreset = false
+
         recordingFolder = ""
         storedWirelessEndpoint = nil
+        storedWirelessSerial = nil
         lastWirelessConnectAttempt = nil
         errorMessage = nil
         appendLog("Settings reset to defaults.", level: .info)
@@ -523,18 +574,29 @@ final class AppModel: ObservableObject {
             var found = try await adb.devices()
 
             if found.isEmpty,
-               let endpoint = storedWirelessEndpoint,
-               shouldAttemptBackgroundWirelessConnect {
-                let connected = await connectWirelessEndpoint(
-                    endpoint,
-                    reason: "background recovery"
+               hasWirelessRecoveryHint,
+               shouldAttemptBackgroundWirelessRecovery {
+                lastWirelessConnectAttempt = Date()
+                if let endpoint = storedWirelessEndpoint {
+                    _ = await connectWirelessEndpoint(
+                        endpoint,
+                        reason: "background recovery"
+                    )
+                }
+                appendLog("WIRELESS: background mDNS refresh…", level: .info)
+                let services = (try? await adb.mdnsServices()) ?? []
+                appendLog(
+                    "WIRELESS: background mDNS returned \(services.count) service(s).",
+                    level: services.isEmpty ? .warning : .info
                 )
-                if connected, let refreshed = try? await adb.devices() {
+                if let refreshed = try? await adb.devices() {
                     found = refreshed
                 }
             }
 
-            let sorted = found.sorted { lhs, rhs in
+            let normalized = DeviceListNormalizer.normalize(found)
+            updateWirelessEndpointCache(raw: found, normalized: normalized)
+            let sorted = normalized.sorted { lhs, rhs in
                 if lhs.isUsable != rhs.isUsable { return lhs.isUsable }
                 if lhs.transport != rhs.transport { return lhs.transport == .usb }
                 return lhs.displayName.localizedCaseInsensitiveCompare(rhs.displayName) == .orderedAscending
@@ -731,6 +793,8 @@ final class AppModel: ObservableObject {
         userWantsMirroring = true
         mirroringSerial = device.serial
         mirroringDeviceName = device.displayName
+        mirroringModel = device.model
+        mirroringProduct = device.product
         isReconnecting = false
         isWaitingForDevice = false
         reconnectAttempt = 0
@@ -742,6 +806,8 @@ final class AppModel: ObservableObject {
                 userWantsMirroring = false
                 mirroringSerial = nil
                 mirroringDeviceName = nil
+                mirroringModel = nil
+                mirroringProduct = nil
                 return
             }
             recordURL = made
@@ -761,6 +827,8 @@ final class AppModel: ObservableObject {
         userWantsMirroring = false
         mirroringSerial = nil
         mirroringDeviceName = nil
+        mirroringModel = nil
+        mirroringProduct = nil
         isReconnecting = false
         isWaitingForDevice = false
         reconnectTask?.cancel()
@@ -791,6 +859,12 @@ final class AppModel: ObservableObject {
         if let recordURL {
             appendLog("Recording video to \(recordURL.path)", level: .info)
         }
+        if isWirelessSerial(serial) {
+            rememberWirelessSerial(serial)
+            if let endpoint = WirelessEndpoint(serial: serial) ?? wirelessEndpointCache[serial] {
+                rememberWirelessEndpoint(endpoint)
+            }
+        }
         do {
             var sessionOptions = options
             if let displayName = devices.first(where: { $0.serial == serial })?.displayName,
@@ -800,9 +874,6 @@ final class AppModel: ObservableObject {
                 )
             }
             try await scrcpy.start(serial: serial, options: sessionOptions, recordPath: recordURL?.path)
-            if let endpoint = WirelessEndpoint(serial: serial) {
-                rememberWirelessEndpoint(endpoint)
-            }
             if hasUserStopped {
                 await scrcpy.stop()
                 status = await scrcpy.status()
@@ -830,6 +901,8 @@ final class AppModel: ObservableObject {
                     userWantsMirroring = false
                     mirroringSerial = nil
                     mirroringDeviceName = nil
+                    mirroringModel = nil
+                    mirroringProduct = nil
                 }
             }
         } catch {
@@ -843,6 +916,8 @@ final class AppModel: ObservableObject {
                 userWantsMirroring = false
                 mirroringSerial = nil
                 mirroringDeviceName = nil
+                mirroringModel = nil
+                mirroringProduct = nil
             }
         }
     }
@@ -899,7 +974,7 @@ final class AppModel: ObservableObject {
         let device = mirroringDevice
         if let device, device.isUsable {
             scheduleReconnectIfPossible()
-        } else if mirroringWirelessEndpoint != nil {
+        } else if isMirroringWireless {
             appendLog("Wireless connection dropped; trying to reconnect…", level: .info)
             scheduleReconnectIfPossible()
         } else {
@@ -923,7 +998,7 @@ final class AppModel: ObservableObject {
             return
         }
         let device = devices.first(where: { $0.serial == mirroringSerial && $0.isUsable })
-        guard device != nil || WirelessEndpoint(serial: mirroringSerial) != nil else {
+        guard device != nil || isMirroringWireless else {
             return
         }
         if let device, selectedSerial != device.serial {
@@ -939,7 +1014,7 @@ final class AppModel: ObservableObject {
     private func scheduleReconnectIfPossible() {
         guard reconnectTask == nil else { return }
         let device = mirroringDevice
-        let devicePresent = device?.isUsable == true || mirroringWirelessEndpoint != nil
+        let devicePresent = device?.isUsable == true || isMirroringWireless
         let stopped = hasUserStopped || !userWantsMirroring
 
         guard policy.shouldRetry(
@@ -955,6 +1030,8 @@ final class AppModel: ObservableObject {
                 userWantsMirroring = false
                 mirroringSerial = nil
                 mirroringDeviceName = nil
+                mirroringModel = nil
+                mirroringProduct = nil
                 isReconnecting = false
                 isWaitingForDevice = false
                 statusTask?.cancel()
@@ -995,6 +1072,31 @@ final class AppModel: ObservableObject {
         }
     }
 
+    private func resolveMirroringDevice(exact serial: String) -> AndroidDevice? {
+        if let exact = devices.first(where: { $0.serial == serial && $0.isUsable }) {
+            return exact
+        }
+        if let storedWirelessSerial,
+           let stored = devices.first(where: { $0.serial == storedWirelessSerial && $0.isUsable }) {
+            return stored
+        }
+        guard isWirelessSerial(serial) else { return nil }
+
+        let candidates = devices.filter { $0.isUsable && isWirelessSerial($0.serial) }
+        if candidates.count == 1 {
+            return candidates[0]
+        }
+
+        let identityMatches = candidates.filter { candidate in
+            let modelMatches = normalizedIdentity(candidate.model) != nil
+                && normalizedIdentity(candidate.model) == normalizedIdentity(mirroringModel)
+            let productMatches = normalizedIdentity(candidate.product) != nil
+                && normalizedIdentity(candidate.product) == normalizedIdentity(mirroringProduct)
+            return modelMatches || productMatches
+        }
+        return identityMatches.count == 1 ? identityMatches[0] : nil
+    }
+
     private func performReconnect() async {
         guard userWantsMirroring, !hasUserStopped else {
             isReconnecting = false
@@ -1004,6 +1106,8 @@ final class AppModel: ObservableObject {
             userWantsMirroring = false
             mirroringSerial = nil
             mirroringDeviceName = nil
+            mirroringModel = nil
+            mirroringProduct = nil
             isReconnecting = false
             appendLog("Cannot reconnect because adb or scrcpy is missing.", level: .error)
             return
@@ -1014,32 +1118,56 @@ final class AppModel: ObservableObject {
             return
         }
 
-        var device = devices.first(where: { $0.serial == serial && $0.isUsable })
+        var device = resolveMirroringDevice(exact: serial)
 
-        // A wireless mirror may lose its adb transport while the phone is
-        // still reachable. Reconnect the endpoint, refresh once, and only then
-        // decide whether to relaunch scrcpy.
-        if device == nil, let endpoint = WirelessEndpoint(serial: serial) {
-            _ = await connectWirelessEndpoint(endpoint, reason: "reconnect")
+        // Give adb a chance to restore the stable mDNS serial first.
+        if device == nil {
             await waitForRefreshToFinish()
             await refreshDevices()
-            device = devices.first(where: { $0.serial == serial && $0.isUsable })
-            if device == nil {
-                isReconnecting = false
-                isWaitingForDevice = true
-                appendLog(
-                    "Wireless endpoint \(serial) did not come back yet; keeping the reconnect attempt alive.",
-                    level: .warning
-                )
-                return
-            }
-            appendLog("Wireless phone reconnected at \(serial).", level: .success)
+            device = resolveMirroringDevice(exact: serial)
+        }
+
+        // If it is still gone, ask adb's mDNS responder to repopulate the
+        // stable serial, then refresh once more.
+        if device == nil, isWirelessSerial(serial) {
+            appendLog("WIRELESS: asking adb for mDNS services…", level: .info)
+            let services = (try? await adb.mdnsServices()) ?? []
+            appendLog(
+                "WIRELESS: mDNS returned \(services.count) service(s).",
+                level: services.isEmpty ? .warning : .info
+            )
+            await waitForRefreshToFinish()
+            await refreshDevices()
+            device = resolveMirroringDevice(exact: serial)
+        }
+
+        // Last resort: reconnect the stored host:port endpoint.
+        if device == nil, isWirelessSerial(serial), let endpoint = storedWirelessEndpoint {
+            _ = await connectWirelessEndpoint(endpoint, reason: "reconnect fallback")
+            await waitForRefreshToFinish()
+            await refreshDevices()
+            device = resolveMirroringDevice(exact: serial)
         }
 
         guard let device else {
             isReconnecting = false
             isWaitingForDevice = true
+            appendLog(
+                "\(mirroringDeviceName ?? "The phone") is still unavailable; waiting for it to return…",
+                level: .info
+            )
             return
+        }
+
+        if device.serial != serial {
+            appendLog("WIRELESS: using normalized serial \(device.serial).", level: .info)
+        }
+        mirroringSerial = device.serial
+        mirroringDeviceName = device.displayName
+        mirroringModel = device.model
+        mirroringProduct = device.product
+        if isWirelessSerial(device.serial) {
+            rememberWirelessSerial(device.serial)
         }
 
         isReconnecting = true
@@ -1063,8 +1191,8 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private var shouldAttemptBackgroundWirelessConnect: Bool {
-        guard storedWirelessEndpoint != nil else { return false }
+    private var shouldAttemptBackgroundWirelessRecovery: Bool {
+        guard hasWirelessRecoveryHint else { return false }
         guard let lastWirelessConnectAttempt else { return true }
         return Date().timeIntervalSince(lastWirelessConnectAttempt) > 10
     }
@@ -1161,6 +1289,47 @@ final class AppModel: ObservableObject {
 
     // MARK: - Wireless
 
+    func discoverTailscalePeers() async {
+        guard !isDiscoveringTailscale else { return }
+        isDiscoveringTailscale = true
+        tailscaleMessage = nil
+        defer { isDiscoveringTailscale = false }
+
+        guard let cli = TailscaleDiscovery.locateCLI() else {
+            tailscalePeers = []
+            let message = "Install Tailscale on this Mac to use a phone over your tailnet."
+            tailscaleMessage = message
+            appendLog("TAILSCALE: \(message)", level: .warning)
+            return
+        }
+
+        do {
+            let peers = try await TailscaleDiscovery.status(using: cli)
+            let androidPeers = TailscaleDiscovery.androidPeers(from: peers)
+            tailscalePeers = androidPeers
+
+            if androidPeers.isEmpty {
+                let message = "No Android peers found. Install Tailscale on the phone and sign in to the same tailnet."
+                tailscaleMessage = message
+                appendLog("TAILSCALE: \(message)", level: .warning)
+            } else {
+                let onlineCount = androidPeers.filter(\.online).count
+                let peerWord = androidPeers.count == 1 ? "peer" : "peers"
+                let message = "Found \(androidPeers.count) Android \(peerWord) — \(onlineCount) online."
+                tailscaleMessage = message
+                appendLog("TAILSCALE: \(message)", level: .info)
+            }
+        } catch {
+            tailscalePeers = []
+            let message = "Could not read Tailscale status. Open Tailscale on this Mac and try again."
+            tailscaleMessage = message
+            appendLog(
+                "TAILSCALE: \(Self.friendlyMessage(for: error))",
+                level: .warning
+            )
+        }
+    }
+
     func discoverWirelessEndpoint() async -> (host: String, pairingPort: Int?, connectPort: Int?)? {
         guard !isDiscoveringWireless else { return nil }
         guard toolchain != nil else {
@@ -1227,6 +1396,76 @@ final class AppModel: ObservableObject {
 
     private func serviceSummary(_ services: [ADBMDNSService]) -> String {
         services.map { "\($0.kind.rawValue) \($0.hostPort)" }.joined(separator: ", ")
+    }
+
+    private func isWirelessSerial(_ serial: String) -> Bool {
+        serial.contains(":")
+            || serial.range(of: "_adb-tls-connect._tcp", options: .caseInsensitive) != nil
+    }
+
+    private func isMDNSSerial(_ serial: String) -> Bool {
+        serial.range(of: "_adb-tls-connect._tcp", options: .caseInsensitive) != nil
+    }
+
+    private func updateWirelessEndpointCache(
+        raw: [AndroidDevice],
+        normalized: [AndroidDevice]
+    ) {
+        let mdnsDevices = normalized.filter { isMDNSSerial($0.serial) }
+        guard !mdnsDevices.isEmpty else {
+            wirelessEndpointCache = [:]
+            return
+        }
+
+        var cache: [String: WirelessEndpoint] = [:]
+        for mdnsDevice in mdnsDevices {
+            for rawDevice in raw {
+                guard let endpoint = WirelessEndpoint(serial: rawDevice.serial),
+                      samePhoneIdentity(rawDevice, mdnsDevice)
+                else {
+                    continue
+                }
+                cache[mdnsDevice.serial] = endpoint
+                break
+            }
+        }
+        wirelessEndpointCache = cache
+    }
+
+    private func samePhoneIdentity(_ lhs: AndroidDevice, _ rhs: AndroidDevice) -> Bool {
+        if let lhsModel = normalizedIdentity(lhs.model),
+           let rhsModel = normalizedIdentity(rhs.model),
+           lhsModel == rhsModel {
+            return true
+        }
+        if let lhsProduct = normalizedIdentity(lhs.product),
+           let rhsProduct = normalizedIdentity(rhs.product),
+           lhsProduct == rhsProduct {
+            return true
+        }
+        return false
+    }
+
+    private func normalizedIdentity(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let normalized = value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+        let collapsed = normalized.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+        return collapsed.isEmpty ? nil : collapsed
+    }
+
+    private func rememberWirelessSerial(_ serial: String) {
+        guard isWirelessSerial(serial) else { return }
+        let changed = storedWirelessSerial != serial
+        storedWirelessSerial = serial
+        guard !isDemoMode else { return }
+        UserDefaults.standard.set(serial, forKey: MMDefaults.wirelessSerial)
+        if changed {
+            appendLog("WIRELESS: saved serial \(serial).", level: .info)
+        }
     }
 
     private func rememberWirelessEndpoint(_ endpoint: WirelessEndpoint) {
@@ -1456,6 +1695,37 @@ final class AppModel: ObservableObject {
         guard !isDemoMode else { return }
         guard let data = try? JSONEncoder().encode(options) else { return }
         UserDefaults.standard.set(data, forKey: MMDefaults.options)
+    }
+
+    private func persistPreset() {
+        guard !isDemoMode else { return }
+        UserDefaults.standard.set(preset.rawValue, forKey: MMDefaults.preset)
+    }
+
+    private func presetDidChange(from oldValue: MirrorPreset) {
+        guard preset != oldValue, !isApplyingPreset else { return }
+
+        if let presetOptions = preset.options {
+            isApplyingPreset = true
+            options = presetOptions
+            isApplyingPreset = false
+            persistOptions()
+            persistPreset()
+            appendLog("Mirror preset: \(preset.title) — \(preset.subtitle).", level: .info)
+        } else {
+            persistPreset()
+        }
+    }
+
+    private func optionsDidChange(from oldValue: ScrcpyOptions) {
+        guard options != oldValue, !isApplyingPreset else { return }
+
+        persistOptions()
+        if preset != .custom {
+            preset = .custom
+            persistPreset()
+            appendLog("Mirror preset switched to Custom.", level: .info)
+        }
     }
 
     private static func loadOptions() -> ScrcpyOptions {

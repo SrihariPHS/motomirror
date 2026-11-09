@@ -1,4 +1,5 @@
 import AppKit
+import MotoMirrorCore
 import SwiftUI
 
 @main
@@ -23,14 +24,32 @@ struct MotoMirrorApp: App {
             || ["1", "true", "yes"].contains(environment["MOTOMIRROR_AUTOSTART"]?.lowercased() ?? "")
         let preferredSerial = Self.launchValue(for: "--select-serial")
             ?? environment["MOTOMIRROR_SELECT_SERIAL"]
+        let presetArgument = Self.launchValue(for: "--preset")
 
         let model = demo ? AppModel.demo() : AppModel.live()
         model.installSignalHandlers()
         model.preferInitialSerial(preferredSerial)
+        if let launchPreset = Self.mirrorPreset(from: presetArgument) {
+            model.preset = launchPreset
+        }
         if autoMirror {
             model.enableAutoMirror()
         }
         _model = StateObject(wrappedValue: model)
+    }
+
+    private static func mirrorPreset(from raw: String?) -> MirrorPreset? {
+        guard let raw = raw?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+              !raw.isEmpty
+        else {
+            return nil
+        }
+        switch raw.replacingOccurrences(of: "_", with: "-") {
+        case "quality": return .quality
+        case "balanced": return .balanced
+        case "battery-saver", "batterysaver": return .batterySaver
+        default: return nil
+        }
     }
 
     private static func launchValue(for flag: String) -> String? {

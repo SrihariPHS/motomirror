@@ -84,15 +84,12 @@ final class ADBClientTests: XCTestCase {
         XCTAssertEqual(details.battery?.temperatureCelsius, 31.0)
         XCTAssertEqual(details.storage?.totalBytes, 115343360 * 1024)
         XCTAssertEqual(details.screen, ScreenInfo(width: 720, height: 1600, density: 400))
-        XCTAssertEqual(
-            fake.calls,
-            [
-                "[-s][R5CX1234567][shell][getprop]",
-                "[-s][R5CX1234567][shell][dumpsys][battery]",
-                "[-s][R5CX1234567][shell][df][-k][/data]",
-                "[-s][R5CX1234567][shell][wm size; wm density]"
-            ]
-        )
+
+        XCTAssertEqual(fake.calls.count, 1)
+        let command = try XCTUnwrap(fake.calls.first)
+        for marker in ["__PROPS__", "__BATTERY__", "__STORAGE__", "__SCREEN__"] {
+            XCTAssertTrue(command.contains(marker), "batch command is missing \(marker)")
+        }
     }
 
     func testDetailsSurvivesFailingOptionalCommand() async throws {
@@ -119,7 +116,7 @@ final class ADBClientTests: XCTestCase {
         let details = try await client.details(for: serial)
 
         XCTAssertEqual(details, DeviceDetails(serial: serial))
-        XCTAssertEqual(fake.calls.count, 4)
+        XCTAssertEqual(fake.calls.count, 1)
     }
 
     func testDetailsRejectsEmptySerialWithoutCallingADB() async throws {
@@ -545,16 +542,19 @@ final class ADBClientTests: XCTestCase {
     }
 
     private func makeFakeDetailsADB(batteryFails: Bool) throws -> FakeADB {
-        let batteryBody = batteryFails
-            ? "printf 'error: battery service unavailable\\n' >&2; exit 1;;"
-            : "printf 'Current Battery Service state:\\n  level: 85\\n  status: 2\\n  temperature: 310\\n  voltage: 4200\\n';;"
+        let batteryOutput = batteryFails
+            ? "printf '__BATTERY__\\nerror: battery service unavailable\\n';"
+            : "printf '__BATTERY__\\nCurrent Battery Service state:\\n  level: 85\\n  status: 2\\n  temperature: 310\\n  voltage: 4200\\n';"
 
         return try makeFakeADB("""
         case "$*" in
-          "-s R5CX1234567 shell getprop") printf '[ro.product.manufacturer]: [motorola]\\n[ro.product.model]: [moto g85 5G]\\n[ro.build.version.release]: [14]\\n[ro.build.version.sdk]: [34]\\n[ro.product.cpu.abi]: [arm64-v8a]\\n';;
-          "-s R5CX1234567 shell dumpsys battery") \(batteryBody)
-          "-s R5CX1234567 shell df -k /data") printf 'Filesystem 1K-blocks Used Available Use%% Mounted on\\n/dev/block/dm-6 115343360 45678900 69664460 40%% /data\\n';;
-          "-s R5CX1234567 shell wm size; wm density") printf 'Physical size: 1080x2400\\nOverride size: 720x1600\\nPhysical density: 420\\nOverride density: 400\\n';;
+          *__PROPS__*)
+            printf '__PROPS__\\n[ro.product.manufacturer]: [motorola]\\n[ro.product.model]: [moto g85 5G]\\n[ro.build.version.release]: [14]\\n[ro.build.version.sdk]: [34]\\n[ro.product.cpu.abi]: [arm64-v8a]\\n'
+            \(batteryOutput)
+            printf '__STORAGE__\\nFilesystem 1K-blocks Used Available Use%% Mounted on\\n/dev/block/dm-6 115343360 45678900 69664460 40%% /data\\n'
+            printf '__SCREEN__\\nPhysical size: 1080x2400\\nOverride size: 720x1600\\nPhysical density: 420\\nOverride density: 400\\n'
+            \(batteryFails ? "exit 1" : "exit 0")
+            ;;
           *) printf 'unexpected command: %s\\n' "$*" >&2; exit 1;;
         esac
         """)

@@ -38,8 +38,20 @@ public actor ADBClient: ADBServicing {
         let serial = try validatedSerial(serial)
         var details = DeviceDetails(serial: serial)
 
-        if let output = try? await run(["-s", serial, "shell", "getprop"]) {
-            let properties = ADBParser.parseGetProp(output.stdout)
+        // One adb round trip instead of four. The marker lines keep the
+        // section boundaries stable even when a probe fails: the Android shell
+        // continues to the next command and the existing parsers read each
+        // slice independently.
+        let script = "echo __PROPS__; getprop; echo __BATTERY__; dumpsys battery; "
+            + "echo __STORAGE__; df -k /data; echo __SCREEN__; wm size; wm density"
+        guard let output = try? await run(["-s", serial, "shell", script]) else {
+            return details
+        }
+
+        let sections = Self.parseDetailSections(output.stdout)
+
+        if let props = sections["__PROPS__"] {
+            let properties = ADBParser.parseGetProp(props)
             details.manufacturer = nonEmpty(properties["ro.product.manufacturer"])
             details.model = nonEmpty(properties["ro.product.model"])
             details.androidVersion = nonEmpty(properties["ro.build.version.release"])
@@ -47,18 +59,16 @@ public actor ADBClient: ADBServicing {
             details.abi = nonEmpty(properties["ro.product.cpu.abi"])
         }
 
-        if let output = try? await run(["-s", serial, "shell", "dumpsys", "battery"]) {
-            details.battery = ADBParser.parseBattery(output.stdout)
+        if let battery = sections["__BATTERY__"] {
+            details.battery = ADBParser.parseBattery(battery)
         }
 
-        if let output = try? await run(["-s", serial, "shell", "df", "-k", "/data"]) {
-            details.storage = ADBParser.parseStorage(output.stdout)
+        if let storage = sections["__STORAGE__"] {
+            details.storage = ADBParser.parseStorage(storage)
         }
 
-        // One round trip for both screen properties; parseScreen understands the
-        // combined text because each line keeps its own label.
-        if let output = try? await run(["-s", serial, "shell", "wm size; wm density"]) {
-            details.screen = ADBParser.parseScreen(output.stdout)
+        if let screen = sections["__SCREEN__"] {
+            details.screen = ADBParser.parseScreen(screen)
         }
 
         return details
@@ -238,6 +248,37 @@ public actor ADBClient: ADBServicing {
         guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines),
               !value.isEmpty else { return nil }
         return value
+    }
+
+    private static let detailMarkers: Set<String> = [
+        "__PROPS__", "__BATTERY__", "__STORAGE__", "__SCREEN__"
+    ]
+
+    /// Splits the combined `adb shell` output into named sections. Text before
+    /// the first marker (for example an adb daemon notice) is ignored.
+    private static func parseDetailSections(_ output: String) -> [String: String] {
+        var sections: [String: String] = [:]
+        var currentMarker: String?
+        var lines: [String] = []
+
+        for rawLine in output.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline) {
+            let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+            if detailMarkers.contains(line) {
+                if let currentMarker {
+                    sections[currentMarker] = lines.joined(separator: "\n")
+                }
+                currentMarker = line
+                lines = []
+            } else if currentMarker != nil {
+                lines.append(line)
+            }
+        }
+
+        if let currentMarker {
+            sections[currentMarker] = lines.joined(separator: "\n")
+        }
+
+        return sections
     }
 
     private func isValidKeyName(_ key: String) -> Bool {

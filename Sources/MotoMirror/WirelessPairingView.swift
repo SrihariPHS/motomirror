@@ -11,6 +11,7 @@ struct WirelessPairingView: View {
     @State private var connectPort = "5555"
     @State private var validationMessage: String?
     @State private var discoveryInfo: String?
+    @State private var tailscaleNote: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,6 +23,7 @@ struct WirelessPairingView: View {
                     if let validationMessage {
                         inlineError(validationMessage)
                     }
+                    tailscaleCard
                     instructions
                 }
                 .padding(22)
@@ -159,6 +161,131 @@ struct WirelessPairingView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .mmCard(padding: 16)
+    }
+
+    private var tailscaleCard: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(alignment: .center, spacing: 9) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(MMTheme.indigo.opacity(0.10))
+                        .frame(width: 28, height: 28)
+                    Image(systemName: "network")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(MMTheme.indigo)
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Tailscale")
+                        .font(.system(size: 12.5, weight: .semibold))
+                    Text("Reach a phone on your tailnet")
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 4)
+                Button {
+                    tailscaleNote = nil
+                    Task { await model.discoverTailscalePeers() }
+                } label: {
+                    HStack(spacing: 5) {
+                        if model.isDiscoveringTailscale {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "magnifyingglass")
+                        }
+                        Text(model.isDiscoveringTailscale ? "Finding…" : "Find Tailscale phones")
+                    }
+                }
+                .buttonStyle(MMSecondaryButtonStyle())
+                .disabled(model.isDiscoveringTailscale || model.isPairing)
+            }
+
+            if model.isDiscoveringTailscale {
+                HStack(spacing: 7) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Looking for Android peers on your tailnet…")
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(.secondary)
+                }
+            } else if let message = model.tailscaleMessage {
+                Text(message)
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if !model.tailscalePeers.isEmpty {
+                VStack(spacing: 4) {
+                    ForEach(Array(model.tailscalePeers.prefix(4))) { peer in
+                        Button {
+                            chooseTailscalePeer(peer)
+                        } label: {
+                            tailscalePeerRow(peer)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(peer.ipv4 == nil && peer.dnsName == nil)
+                    }
+                }
+            }
+
+            if let tailscaleNote {
+                Text(tailscaleNote)
+                    .font(.system(size: 9.5))
+                    .foregroundStyle(.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .fill(MMTheme.indigo.opacity(0.045))
+                    )
+            }
+        }
+        .mmCard(padding: 14)
+    }
+
+    private func tailscalePeerRow(_ peer: TailscalePeer) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "iphone")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(peer.online ? MMTheme.indigo : .secondary)
+                .frame(width: 16)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(peer.hostName)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                Text(peer.ipv4 ?? peer.dnsName ?? "No address")
+                    .font(.system(size: 9.5, design: .monospaced))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 4)
+            StatusPill(
+                text: peer.online ? "Online" : "Offline",
+                tint: peer.online ? MMTheme.green : MMTheme.gray,
+                compact: true
+            )
+            Image(systemName: "chevron.right")
+                .font(.system(size: 8, weight: .semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color.primary.opacity(0.035))
+        )
+        .contentShape(Rectangle())
+    }
+
+    private func chooseTailscalePeer(_ peer: TailscalePeer) {
+        guard let address = peer.ipv4 ?? peer.dnsName else { return }
+        host = address
+        connectPort = "5555"
+        validationMessage = nil
+        discoveryInfo = nil
+        tailscaleNote = "Start adb tcpip 5555 on the phone once, or use the current Wireless debugging port. Android may block inbound ADB over VPN; test the address before relying on it."
     }
 
     private var instructions: some View {

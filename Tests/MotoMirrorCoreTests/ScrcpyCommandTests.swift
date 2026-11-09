@@ -10,7 +10,8 @@ final class ScrcpyCommandTests: XCTestCase {
         XCTAssertTrue(arguments.contains("--video-bit-rate=8M"))
         XCTAssertTrue(arguments.contains("--max-fps=60"))
         XCTAssertTrue(arguments.contains("--stay-awake"))
-        XCTAssertFalse(arguments.contains { $0.hasPrefix("--max-size") })
+        XCTAssertTrue(arguments.contains("--max-size=1440"))
+        XCTAssertFalse(arguments.contains { $0.hasPrefix("--max-size=0") })
         XCTAssertFalse(arguments.contains("--no-audio"))
         XCTAssertFalse(arguments.contains("--turn-screen-off"))
     }

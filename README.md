@@ -18,7 +18,9 @@ Android 11+ device.
 - Xcode Command Line Tools to build: `xcode-select --install`.
 - Homebrew for `make setup`.
 
-For wireless mirroring, the Mac and the phone must be on the same Wi-Fi network.
+For local wireless mirroring, the Mac and the phone must be on the same Wi-Fi
+network. Tailscale can connect them across networks; see
+[Tailscale](#tailscale-remote-adb).
 
 ## Quick start
 
@@ -148,19 +150,105 @@ adb connect 192.168.1.42:5555
 adb devices -l
 ```
 
+## Tailscale (remote ADB)
+
+Tailscale puts the Mac and the phone on a private network. Use it when the
+phone is not on the same Wi-Fi. MotoMirror's peer discovery is read-only.
+
+1. Install Tailscale on the Mac from
+   <https://tailscale.com/download/mac> and on the phone from Google Play.
+   Sign in to the same tailnet on both devices.
+2. Turn Tailscale on for both devices. On the Mac, confirm the phone is online.
+   If the `tailscale` CLI is on `PATH`:
+
+```bash
+tailscale status
+tailscale ping 100.x.y.z
+```
+
+3. Connect the phone over USB and authorize it. Fix ADB to port 5555:
+
+```bash
+adb tcpip 5555
+```
+
+4. Test the phone's Tailscale address:
+
+```bash
+nc -vz 100.x.y.z 5555
+```
+
+5. Connect and verify:
+
+```bash
+adb connect 100.x.y.z:5555
+adb devices -l
+```
+
+6. In MotoMirror, open **Wireless…**, click **Find Tailscale phones**, and pick
+   the phone. The app fills the phone's 100.x address and port `5555` from
+   read-only peer discovery. To list Android peers from the CLI:
+
+```bash
+motomirrorctl tailscale peers --json
+```
+
+Caveats:
+
+- The phone must run Tailscale and allow inbound ADB.
+- Android may block inbound VPN connections. `adb tcpip 5555` fixes the port.
+  If `nc` still fails, use USB or same-LAN wireless.
+- Re-run `adb tcpip 5555` after a phone reboot.
+- Mac-side Tailscale is installed. The Moto had no online Tailscale node during
+  testing, so this path is documented but not live-proven on the Moto G85.
+
+Full setup details: [docs/SETUP-MOTO-G85.md](docs/SETUP-MOTO-G85.md#7-tailscale-remote-adb).
+
 ## Features
 
 - Native SwiftUI device list with USB and wireless transports.
 - Device detail panel: model, Android version, battery, storage, screen size.
 - Live mirror through scrcpy 5.0.1.
-- Bitrate, resolution, FPS, audio, stay-awake, and window options.
+- Quality, Balanced, and Battery Saver presets, plus manual overrides.
 - Screenshot capture and MP4 recording.
 - Wireless pairing with `adb pair` and `adb connect`.
+- Read-only Tailscale peer discovery for 100.x addresses.
 - Automatic reconnect after a dropped USB or wireless session.
 - In-app setup guidance for developer options, USB debugging, and RSA prompts.
 - Logs for every adb and scrcpy command.
 - `motomirrorctl` command line tool.
 - Demo mode with sample devices for UI review without a phone.
+
+## Mirror presets
+
+Open **Mirror options** and pick a preset. The preset fills resolution, bitrate,
+frame rate, audio, and screen behavior. Manual edits switch the preset to
+**Custom**.
+
+| Preset | Max size | Bitrate | FPS | Audio | Screen | Use |
+| --- | ---: | ---: | ---: | --- | --- | --- |
+| Quality | 1920 px | 12 Mbps | 60 | On | On | Sharpest text and video |
+| Balanced | 1440 px | 8 Mbps | 60 | On | On | Everyday default |
+| Battery Saver | 720 px | 4 Mbps | 30 | Off | Off | Long sessions on battery |
+
+**Balanced is the default.** The first launch of this version migrates stored
+old options to Balanced once.
+
+Battery guidance:
+
+| Priority | Preset | What to expect |
+| --- | --- | --- |
+| Best image | Quality | Highest detail, highest phone battery draw. |
+| Everyday use | Balanced | Good detail with a steadier power draw. |
+| Longest run | Battery Saver | Lowest draw. The phone screen turns off, but the Mac still shows the phone. |
+
+Battery Saver measured about 434 mA on a Moto G85 over wireless, against about
+600 mA for the old 720 / 20 Mbps / 90 fps / audio profile. That is about 28%
+lower. The runs were short and not lab-grade. See
+[docs/PERFORMANCE.md](docs/PERFORMANCE.md).
+
+Pressing the phone power button while Battery Saver is active turns the phone
+screen back on. Touch input keeps working through the Mac window.
 
 ## Troubleshooting
 
@@ -169,8 +257,8 @@ adb devices -l
 | `unauthorized` in `adb devices -l` | Unlock the phone and tap **Allow** on the RSA dialog. Enable **Always allow from this computer**. Then run `adb kill-server && adb start-server`. |
 | Device shows `offline` | Replug the cable. Run `adb reconnect offline`. Turn USB debugging off and on. |
 | `adb` not found | Run `make setup`. Open a new terminal. Check `which adb`; Homebrew installs it in `/opt/homebrew/bin`. |
-| Black screen | Unlock the phone and accept the RSA prompt. Keep the screen on. Apps with `FLAG_SECURE` block capture. |
-| No audio | Audio needs Android 11+ and scrcpy 5.x. Raise the phone media volume. Check the app audio toggle. Try USB instead of wireless. |
+| Black screen | Battery Saver turns the phone screen off by design; the Mac still shows the mirror. Otherwise unlock the phone, accept the RSA prompt, and keep the screen on. Apps with `FLAG_SECURE` block capture. |
+| No audio | Battery Saver turns audio off; choose Balanced or Quality. Audio needs Android 11+ and scrcpy 5.x. Raise the phone media volume. Try USB instead of wireless. |
 | Wireless drops | Use the same non-guest Wi-Fi network. Turn off VPN. Reconnect with `adb connect <ip>:<port>`. MotoMirror retries automatically. |
 | Phone not listed after plugging in | Use a data cable, not a charge-only cable. Try another USB port without a hub. See `docs/SETUP-MOTO-G85.md`. |
 
@@ -203,8 +291,8 @@ are written under `verification/`.
 ### Current verification status
 
 - Static gate: **58/58** checks.
-- Unit tests: **111 tests, 0 failures**.
-- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261109-180730`.
+- Unit tests: **143 tests, 0 failures**.
+- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261109-202617`.
 - Live mirror proof: H.264 video at 1080x2400 with 124 frames, plus Opus audio.
 - Wireless proof: connect, screenshot, mirror, and disconnect over
   `127.0.0.1:5555`.
@@ -213,6 +301,12 @@ are written under `verification/`.
 - mDNS discovery parser: 9 tests, plus `motomirrorctl wireless discover --json`.
 - Auto-reconnect proof: killing the scrcpy child under a running app produced
   a new scrcpy child with the same parent.
+- Battery benchmark: Moto G85 Android 16 over wireless. Battery Saver averaged
+  about 434 mA against about 600 mA for the old profile, about 28% lower. Short
+  runs, two repeats, not lab-grade. See
+  [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
+- Tailscale peer discovery: documented, not live-proven on the Moto G85. The
+  phone had no online Tailscale node during testing.
 - Physical Moto G85 gate: pending the phone. Run `make verify-live` with the
   phone connected and USB debugging authorized.
 
@@ -247,9 +341,9 @@ discovery, screenshots, wireless setup, and device details.
 
 ## Privacy
 
-All work stays on the Mac and the phone. There is no account, no cloud service,
-and no telemetry. ADB connects over USB or the local network. Screenshots and
-recordings stay on the Mac.
+MotoMirror itself has no account, no cloud service, and no telemetry. ADB
+connects over USB, the local network, or your optional Tailscale tailnet.
+Screenshots and recordings stay on the Mac.
 
 ## Uninstall
 

@@ -28,3 +28,24 @@ Next: connect the Moto G85 with USB debugging enabled and the RSA prompt allowed
 - Wireless reconnect: app mirrored over 127.0.0.1:5555, endpoint disconnected, app re-ran adb connect and started a new scrcpy child on the wireless serial. Persisted endpoint JSON observed.
 - Final gate run 20261109-180730: 100/100, 0 failed, 0 skipped, 111 unit tests, 18/18 artifact hashes match. M14 false positive fixed to use process executable names.
 - Physical Moto pair-code flow still needs the phone. The app must be tested with the actual six-digit code from the Moto's Wireless debugging dialog.
+
+## 2026-11-09 presets + batched details
+
+- Added `MirrorPreset` core presets: `quality` (1920/12/60/audio), `balanced` (1440/8/60/audio), `batterySaver` (720/4/30/no-audio/screen-off), plus `custom` with no fixed options. `ScrcpyOptions.default` is now `MirrorPreset.balanced.options!`, so the default never asks for native max-size 0.
+- Added `DeviceListNormalizer.normalize(_:)`: when `adb` reports both the stable mDNS serial (`_adb-tls-connect._tcp`) and an `IP:port` alias for the same model/product, the mDNS entry wins and the IP alias is dropped; USB entries and different models are untouched, and winning entries keep input order.
+- `ADBClient.details(for:)` now runs one marked `adb shell` command (`__PROPS__`, `__BATTERY__`, `__STORAGE__`, `__SCREEN__`) instead of four sequential round trips and feeds the existing parsers. A failed battery section leaves the other sections intact. Live Moto G85: 4 calls -> 1, measured 0.41-0.47s -> 0.28-0.34s per details refresh.
+- Live `motomirrorctl info` against the Moto G85 returned model moto g85 5G, Android 16, battery 60% charging, storage, and 1080x2400 @ 400 dpi through the batched path.
+- Files: `Sources/MotoMirrorCore/MirrorPreset.swift`, `DeviceListNormalizer.swift`, `Models.swift` (default only), `ADBClient.swift`; `Tests/MotoMirrorCoreTests/PresetTests.swift`, `DeviceListNormalizerTests.swift`, `ADBClientTests.swift`, `ScrcpyCommandTests.swift` (default assertion).
+- `swift test`: 127 tests, 0 failures. Next: wire preset selection into app/CLI (out of scope here).
+
+## 2026-11-09 Tailscale peer discovery
+
+- Added read-only `TailscaleDiscovery`: locates the installed CLI (app bundle, Homebrew, `/usr/local`, then `BinaryLocator`), parses `tailscale status --json` `Peer` entries with `JSONSerialization`, filters/sorts Android peers (online first, then case-insensitive host name), and validates `100.64.0.0/10` addresses.
+- `status(using:runner:)` runs `tailscale status --json` with a 15s timeout and requires success. Nothing installs, starts, or configures Tailscale.
+- Tests cover online/offline Android, macOS, IPv6-only, missing IP, malformed peers, invalid JSON, missing `Peer`, DNS trailing-dot stripping, CIDR bounds, and a fake CLI proving the `status --json` invocation.
+- Files: `Sources/MotoMirrorCore/TailscaleDiscovery.swift`, `Tests/MotoMirrorCoreTests/TailscaleDiscoveryTests.swift`.
+- `swift test --filter TailscaleDiscoveryTests`: 11 tests, 0 failures. Full `swift test`: 143 tests, 0 failures.
+- Performance: real Moto G85 benchmark shows old 720/20M/90/audio ~600 mA vs Battery Saver 720/4M/30/no-audio/screen-off ~434 mA, about 28% lower. Native resolution triggered a Moto encoder error; explicit 720/1080/1440/1920 sizes are clean. Presets default to Balanced.
+- App integration: `--preset battery-saver` produced `--max-size=720 --video-bit-rate=4M --max-fps=30 --no-audio --turn-screen-off`; `--preset balanced` produced `--max-size=1440 --video-bit-rate=8M --max-fps=60` with audio.
+- Tailscale: read-only `TailscaleDiscovery` and `motomirrorctl tailscale peers` are implemented and tested. The Mac lists 4 Android peers, all offline; no Moto tailnet node, so Tailscale connectivity to the phone is documented but not live-proven.
+- Final gate run 20261109-202617: 100/100, 0 failed, 0 skipped, 143 tests, 18/18 artifact hashes match.

@@ -182,7 +182,7 @@ public struct ScrcpyOptions: Codable, Equatable, Sendable {
         self.extraArguments = extraArguments
     }
 
-    public static let `default` = ScrcpyOptions()
+    public static let `default` = MirrorPreset.balanced.options!
 }
 
 public struct ScrcpyStatus: Equatable, Sendable {

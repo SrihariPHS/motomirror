@@ -195,6 +195,100 @@ adb devices -l
 
 If the connection drops after a reboot, run `adb tcpip 5555` over USB again.
 
+## 7. Tailscale remote ADB
+
+Tailscale puts the Mac and the phone on a private network. Use it when the
+phone is not on the same Wi-Fi. MotoMirror's peer discovery is read-only: it
+reads the Tailscale peer list and can fill a phone's 100.x address. It does not
+sign in, change your tailnet, or open ports by itself.
+
+### Install and sign in
+
+1. On the Mac, install Tailscale from <https://tailscale.com/download/mac>.
+   Open it and sign in.
+2. On the phone, install Tailscale from Google Play. Open it, sign in with the
+   same account, and turn Tailscale on.
+3. Confirm both devices are online in the same tailnet. The Tailscale menu on
+   the Mac shows the phone. If the `tailscale` CLI is on `PATH`:
+
+```bash
+tailscale status
+tailscale ping 100.x.y.z
+```
+
+4. Note the phone's `100.x.y.z` address in the Tailscale app.
+
+### Fix ADB to port 5555
+
+Android may block inbound VPN connections. Put ADB on a fixed port while the
+phone is connected over USB.
+
+1. Connect USB, authorize the phone, and confirm:
+
+```bash
+adb devices -l
+```
+
+2. Switch the daemon to TCP/IP:
+
+```bash
+adb tcpip 5555
+```
+
+3. Keep Tailscale on and the phone unlocked.
+
+### Test the path and connect
+
+1. Test the phone's Tailscale address and ADB port from the Mac:
+
+```bash
+nc -vz 100.x.y.z 5555
+```
+
+A working path prints `succeeded` or `open`. A timeout or refusal means the
+phone is blocking inbound ADB or the address or port is wrong.
+
+2. Connect and verify:
+
+```bash
+adb connect 100.x.y.z:5555
+adb devices -l
+```
+
+The device line starts with `100.x.y.z:5555` and its state is `device`.
+
+3. In MotoMirror, open **Wireless…**, click **Find Tailscale phones**, and pick
+   the phone. The app fills the host `100.x.y.z` and port `5555` from read-only
+   peer discovery. To list Android peers from the CLI:
+
+```bash
+motomirrorctl tailscale peers --json
+```
+
+### Caveats
+
+- The phone must run Tailscale and allow inbound ADB.
+- Android may block inbound VPN connections. `adb tcpip 5555` fixes the port.
+  If `nc` still fails, use USB or same-Wi-Fi wireless. Some Android builds still
+  refuse VPN-bound ADB; a Mac-side setting does not fix that.
+- Re-run `adb tcpip 5555` after a phone reboot.
+- This path is documented, not live-proven on the Moto G85. Mac-side Tailscale
+  is installed. The Moto had no online Tailscale node during testing.
+
+## 8. Make it use less battery
+
+1. In MotoMirror, open **Mirror options** and choose **Battery Saver**.
+2. Battery Saver sets 720 px, 4 Mbps, 30 fps, no audio, and screen off.
+3. The Mac still shows the phone. The phone display stays dark. Press the phone
+   power button to turn the phone screen back on. Touch input still works
+   through the Mac window.
+4. On a Moto G85 over wireless, Battery Saver averaged about 434 mA against
+   about 600 mA for the old 720 / 20 Mbps / 90 fps / audio profile, about 28%
+   lower. The runs were 12 seconds, 2 repeats, not lab-grade. See
+   [PERFORMANCE.md](PERFORMANCE.md).
+5. Use **Balanced** for everyday use. Use USB when possible; USB also charges
+   the phone.
+
 ## When the Mac cannot see the phone
 
 Work through this list in order.
@@ -255,7 +349,8 @@ the port, or the phone. It is not MotoMirror.
 
 1. Confirm that the phone and the Mac are on the same network. A phone on
    cellular data cannot pair.
-2. Turn off VPNs on both devices.
+2. Turn off third-party VPNs on both devices. If you are using Tailscale, keep
+   it on and use section 7 instead.
 3. Do not use a guest network. Guest networks often isolate clients.
 4. Use the IP address, not a hostname.
 5. On the phone, turn **Wireless debugging** off and on. Then pair again with a
@@ -281,6 +376,14 @@ adb devices -l
 adb tcpip 5555
 adb shell ip route
 adb connect 192.168.1.42:5555
+adb devices -l
+
+# Tailscale remote ADB
+tailscale status
+adb tcpip 5555
+nc -vz 100.x.y.z 5555
+adb connect 100.x.y.z:5555
+motomirrorctl tailscale peers --json
 adb devices -l
 
 # Build and run MotoMirror

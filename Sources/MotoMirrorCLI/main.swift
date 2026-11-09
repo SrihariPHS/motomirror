@@ -358,6 +358,41 @@ struct ScreenPayload: Encodable {
     }
 }
 
+struct TailscalePeerPayload: Encodable {
+    let id: String
+    let hostName: String
+    let dnsName: String?
+    let ipv4: String?
+    let os: String
+    let online: Bool
+    let isAndroid: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, hostName, dnsName, ipv4, os, online, isAndroid
+    }
+
+    init(_ peer: TailscalePeer) {
+        id = peer.id
+        hostName = peer.hostName
+        dnsName = peer.dnsName
+        ipv4 = peer.ipv4
+        os = peer.os
+        online = peer.online
+        isAndroid = peer.isAndroid
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(hostName, forKey: .hostName)
+        try container.encode(dnsName, forKey: .dnsName)
+        try container.encode(ipv4, forKey: .ipv4)
+        try container.encode(os, forKey: .os)
+        try container.encode(online, forKey: .online)
+        try container.encode(isAndroid, forKey: .isAndroid)
+    }
+}
+
 struct InfoPayload: Encodable {
     let serial: String
     let manufacturer: String?
@@ -399,6 +434,8 @@ enum CLI {
       motomirrorctl wireless connect --host HOST --port PORT
       motomirrorctl wireless disconnect --host HOST --port PORT
       motomirrorctl wireless tcpip --serial SERIAL [--port PORT]
+      motomirrorctl tailscale peers [--json]
+      motomirrorctl tailscale status [--json]
       motomirrorctl version
       motomirrorctl help
 
@@ -436,6 +473,8 @@ enum CLI {
             return try await mirror(rest)
         case "wireless":
             return try await wireless(rest)
+        case "tailscale":
+            return try await tailscale(rest)
         case "version", "--version", "-v":
             writeStandardOutput("motomirrorctl \(motomirrorCLIVersion)")
             return 0
@@ -820,6 +859,87 @@ enum CLI {
 
         default:
             throw CLIError.usage("Unknown wireless subcommand '\(subcommand)'.")
+        }
+    }
+
+    // MARK: tailscale
+
+    static func tailscale(_ arguments: [String]) async throws -> Int32 {
+        guard let subcommand = arguments.first else {
+            throw CLIError.usage("Missing Tailscale subcommand. Use 'tailscale peers' or 'tailscale status'.")
+        }
+        let rest = Array(arguments.dropFirst())
+        let options = try CommandOptions(rest, flagOptions: ["json"])
+        guard options.positionals.isEmpty else {
+            throw CLIError.usage(
+                "Unexpected Tailscale argument '\(options.positionals[0])'. "
+                    + "Use 'tailscale peers' or 'tailscale status'."
+            )
+        }
+
+        guard let cli = TailscaleDiscovery.locateCLI() else {
+            throw CLIError.failure(
+                "Install Tailscale, then retry. MotoMirror only reads `tailscale status --json`."
+            )
+        }
+
+        let allPeers: [TailscalePeer]
+        do {
+            allPeers = try await TailscaleDiscovery.status(
+                using: cli,
+                runner: ProcessRunner()
+            )
+        } catch {
+            throw CLIError.failure(
+                "Could not read Tailscale status: \(error.localizedDescription)"
+            )
+        }
+
+        let peers: [TailscalePeer]
+        switch subcommand {
+        case "peers":
+            peers = TailscaleDiscovery.androidPeers(from: allPeers)
+        case "status":
+            peers = sortedTailscalePeers(allPeers)
+        default:
+            throw CLIError.usage(
+                "Unknown Tailscale subcommand '\(subcommand)'. Use peers or status."
+            )
+        }
+
+        if options.flags.contains("json") {
+            writeStandardOutput(try jsonString(peers.map(TailscalePeerPayload.init)))
+            return 0
+        }
+
+        if peers.isEmpty {
+            writeStandardOutput(
+                subcommand == "peers"
+                    ? "No Android Tailscale peers found."
+                    : "No Tailscale peers found."
+            )
+            return 0
+        }
+
+        for peer in peers {
+            let state = peer.online ? "online" : "offline"
+            let ipv4 = peer.ipv4 ?? "-"
+            if let dnsName = peer.dnsName {
+                writeStandardOutput("\(state)  \(peer.hostName)  \(ipv4) (\(dnsName))")
+            } else {
+                writeStandardOutput("\(state)  \(peer.hostName)  \(ipv4)")
+            }
+        }
+        return 0
+    }
+
+    static func sortedTailscalePeers(_ peers: [TailscalePeer]) -> [TailscalePeer] {
+        peers.sorted { lhs, rhs in
+            if lhs.online != rhs.online { return lhs.online }
+            let left = lhs.hostName.lowercased()
+            let right = rhs.hostName.lowercased()
+            if left != right { return left < right }
+            return lhs.id < rhs.id
         }
     }
 

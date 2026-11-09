@@ -119,6 +119,16 @@ Reports live in `verification/` (`REPORT.md` and `report.json` by default).
 The harness clears `artifacts/` at the start unless `--keep-artifacts` is
 passed, so a report never points at stale media from an earlier run.
 
+## Tailscale diagnostics
+
+`motomirrorctl tailscale peers [--json]` reads `tailscale status --json` through
+the installed macOS Tailscale CLI and lists Android peers, online first.
+`motomirrorctl tailscale status [--json]` lists every peer. Both commands are
+read-only: MotoMirror never connects to, starts, or modifies Tailscale. If the
+CLI is missing the command fails with: `Install Tailscale, then retry.
+MotoMirror only reads \`tailscale status --json\`.` These diagnostics are not
+part of the 100-check gate yet.
+
 ## Threshold semantics
 
 The score is weighted passes divided by executed weight. `--threshold` is the

@@ -1,3 +1,4 @@
+import MotoMirrorCore
 import SwiftUI
 
 struct OptionsView: View {
@@ -26,10 +27,14 @@ struct OptionsView: View {
             }
 
             VStack(alignment: .leading, spacing: 14) {
+                PresetControl(model: model)
+
+                Divider().opacity(0.55)
+
                 HStack(alignment: .top, spacing: 14) {
                     SegmentedOption(
                         title: "Max size",
-                        choices: [("Native", 0), ("720", 720), ("1080", 1080), ("1440", 1440)],
+                        choices: [("Native", 0), ("720", 720), ("1080", 1080), ("1440", 1440), ("1920", 1920)],
                         selection: $model.options.maxSize
                     )
                     SegmentedOption(
@@ -118,6 +123,98 @@ struct OptionsView: View {
                     .font(.system(size: 10.5))
                     .foregroundStyle(.secondary)
             }
+        }
+    }
+}
+
+private struct PresetControl: View {
+    @ObservedObject var model: AppModel
+    @Environment(\.mmSnapshotLayout) private var isSnapshot
+
+    private let presets: [MirrorPreset] = [.quality, .balanced, .batterySaver]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Mirror preset")
+                .font(.system(size: 10.5, weight: .medium))
+                .foregroundStyle(.secondary)
+
+            if isSnapshot {
+                HStack(spacing: 2) {
+                    ForEach(presets, id: \.self) { preset in
+                        Text(label(for: preset))
+                            .font(.system(size: 10.5, weight: model.preset == preset ? .semibold : .regular))
+                            .foregroundStyle(model.preset == preset ? Color.white : Color.secondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 21)
+                            .background(
+                                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                    .fill(
+                                        model.preset == preset
+                                            ? MMTheme.indigo
+                                            : Color.primary.opacity(0.04)
+                                    )
+                            )
+                    }
+                }
+                .padding(2)
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(Color.primary.opacity(0.035))
+                )
+            } else {
+                Picker("Mirror preset", selection: presetSelection) {
+                    ForEach(presets, id: \.self) { preset in
+                        Text(label(for: preset)).tag(Optional(preset))
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(model.preset.title)
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(MMTheme.indigo)
+                Text(model.preset.subtitle)
+                    .font(.system(size: 9.5))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            Text(model.preset.batteryNote)
+                .font(.system(size: 9.5))
+                .foregroundStyle(.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(9)
+        .background(
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .fill(MMTheme.indigo.opacity(0.045))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .strokeBorder(MMTheme.indigo.opacity(0.10), lineWidth: 1)
+        )
+    }
+
+    private var presetSelection: Binding<MirrorPreset?> {
+        Binding(
+            get: { model.preset == .custom ? nil : model.preset },
+            set: { value in
+                if let value {
+                    model.preset = value
+                }
+            }
+        )
+    }
+
+    private func label(for preset: MirrorPreset) -> String {
+        switch preset {
+        case .quality: return "Quality"
+        case .balanced: return "Balanced"
+        case .batterySaver: return "Battery Saver"
+        case .custom: return "Custom"
         }
     }
 }

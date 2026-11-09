@@ -1,0 +1,912 @@
+{
+  "serial": "adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp",
+  "duration": 12,
+  "results": [
+    {
+      "profile": "current_720_20M_90_audio",
+      "args": [
+        "--max-size=720",
+        "--video-bit-rate=20M",
+        "--max-fps=90",
+        "--stay-awake"
+      ],
+      "audio": true,
+      "screen_off": false,
+      "runs": [
+        {
+          "profile": "current_720_20M_90_audio",
+          "exit_code": 0,
+          "duration_s": 15.28,
+          "avg_current_mA": 518.8,
+          "min_current_mA": 238.3,
+          "max_current_mA": 886.5,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 6.7,
+          "fps": {
+            "samples": [
+              43.0,
+              46.0,
+              45.0,
+              59.0,
+              63.0,
+              58.0,
+              53.0,
+              38.0,
+              76.0,
+              77.0,
+              52.0
+            ],
+            "mean": 55.45,
+            "max": 77.0
+          },
+          "temperature_before": 264,
+          "temperature_after": 264,
+          "battery_level": {
+            "before": 3154296,
+            "after": 3154296
+          },
+          "args": [
+            "--max-size=720",
+            "--video-bit-rate=20M",
+            "--max-fps=90",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 277.2 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 324x720\nINFO: 43 fps (+11 frames skipped)\nINFO: 46 fps (+4 frames skipped)\nINFO: 45 fps\nINFO: 59 fps (+12 frames skipped)\nINFO: 63 fps (+10 frames skipped)\nINFO: 58 fps\nINFO: 53 fps\nINFO: 38 fps (+16 frames skipped)\nINFO: 76 fps (+1 frames skipped)\nINFO: 77 fps\nINFO: 52 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "current_720_20M_90_audio",
+          "exit_code": 0,
+          "duration_s": 15.86,
+          "avg_current_mA": 681.4,
+          "min_current_mA": 271.9,
+          "max_current_mA": 1001.0,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 5.9,
+          "fps": {
+            "samples": [
+              43.0,
+              54.0,
+              61.0,
+              72.0,
+              62.0,
+              36.0,
+              62.0,
+              59.0,
+              72.0,
+              53.0,
+              85.0
+            ],
+            "mean": 59.91,
+            "max": 85.0
+          },
+          "temperature_before": 264,
+          "temperature_after": 264,
+          "battery_level": {
+            "before": 3154296,
+            "after": 3154296
+          },
+          "args": [
+            "--max-size=720",
+            "--video-bit-rate=20M",
+            "--max-fps=90",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 70.3 MB/s (733930 bytes in 0.010s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 324x720\nINFO: 43 fps (+5 frames skipped)\nINFO: 54 fps\nINFO: 61 fps\nINFO: 72 fps\nINFO: 62 fps\nINFO: 36 fps (+4 frames skipped)\nINFO: 62 fps (+27 frames skipped)\nINFO: 59 fps\nINFO: 72 fps (+7 frames skipped)\nINFO: 53 fps (+3 frames skipped)\nINFO: 85 fps (+4 frames skipped)\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "native_8M_60_audio",
+      "args": [
+        "--video-bit-rate=8M",
+        "--max-fps=60",
+        "--stay-awake"
+      ],
+      "audio": true,
+      "screen_off": false,
+      "runs": [
+        {
+          "profile": "native_8M_60_audio",
+          "exit_code": 0,
+          "duration_s": 15.42,
+          "avg_current_mA": 609.9,
+          "min_current_mA": 260.6,
+          "max_current_mA": 968.6,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 6.2,
+          "fps": {
+            "samples": [
+              37.0,
+              40.0,
+              39.0,
+              50.0,
+              51.0,
+              47.0,
+              42.0,
+              40.0,
+              53.0,
+              44.0,
+              41.0
+            ],
+            "mean": 44.0,
+            "max": 53.0
+          },
+          "temperature_before": 264,
+          "temperature_after": 265,
+          "battery_level": {
+            "before": 3154296,
+            "after": 3154296
+          },
+          "args": [
+            "--video-bit-rate=8M",
+            "--max-fps=60",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 268.9 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 37 fps (+4 frames skipped)\nINFO: 40 fps\nINFO: 39 fps\nINFO: 50 fps\nINFO: 51 fps\nINFO: 47 fps\nINFO: 42 fps\nINFO: 40 fps\nINFO: 53 fps\nINFO: 44 fps\nINFO: 41 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "native_8M_60_audio",
+          "exit_code": 0,
+          "duration_s": 16.16,
+          "avg_current_mA": 617.8,
+          "min_current_mA": 335.4,
+          "max_current_mA": 1016.5,
+          "charge_delta_uAh": -9707,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 5.6,
+          "fps": {
+            "samples": [
+              30.0,
+              38.0,
+              40.0,
+              51.0,
+              43.0,
+              38.0,
+              43.0,
+              35.0,
+              49.0,
+              45.0,
+              30.0
+            ],
+            "mean": 40.18,
+            "max": 51.0
+          },
+          "temperature_before": 265,
+          "temperature_after": 265,
+          "battery_level": {
+            "before": 3154296,
+            "after": 3144589
+          },
+          "args": [
+            "--video-bit-rate=8M",
+            "--max-fps=60",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\n2026-11-09 18:36:54.672 scrcpy[19019:2467268] Warning: Window move completed without beginning\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 30 fps (+1 frames skipped)\nINFO: 38 fps\nINFO: 40 fps\nINFO: 51 fps\nINFO: 43 fps\nINFO: 38 fps\nINFO: 43 fps\nINFO: 35 fps (+6 frames skipped)\nINFO: 49 fps\nINFO: 45 fps\nINFO: 30 fps\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "native_6M_60_audio",
+      "args": [
+        "--video-bit-rate=6M",
+        "--max-fps=60",
+        "--stay-awake"
+      ],
+      "audio": true,
+      "screen_off": false,
+      "runs": [
+        {
+          "profile": "native_6M_60_audio",
+          "exit_code": 0,
+          "duration_s": 15.96,
+          "avg_current_mA": 819.7,
+          "min_current_mA": 479.4,
+          "max_current_mA": 1075.7,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 6.4,
+          "fps": {
+            "samples": [
+              32.0,
+              35.0,
+              49.0,
+              41.0,
+              23.0,
+              36.0,
+              41.0,
+              22.0,
+              11.0,
+              11.0,
+              11.0
+            ],
+            "mean": 28.36,
+            "max": 49.0
+          },
+          "temperature_before": 265,
+          "temperature_after": 266,
+          "battery_level": {
+            "before": 3144589,
+            "after": 3144589
+          },
+          "args": [
+            "--video-bit-rate=6M",
+            "--max-fps=60",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\n2026-11-09 18:37:08.043 scrcpy[19266:2468393] Warning: Window move completed without beginning\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 32 fps (+1 frames skipped)\nINFO: 35 fps\nINFO: 49 fps (+1 frames skipped)\nINFO: 41 fps (+1 frames skipped)\nINFO: 23 fps (+2 frames skipped)\nINFO: 36 fps (+5 frames skipped)\nINFO: 41 fps\nINFO: 22 fps\nINFO: 11 fps\nINFO: 11 fps\nINFO: 11 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "native_6M_60_audio",
+          "exit_code": 0,
+          "duration_s": 15.18,
+          "avg_current_mA": 683.0,
+          "min_current_mA": 355.2,
+          "max_current_mA": 1038.2,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 4.3,
+          "fps": {
+            "samples": [
+              43.0,
+              38.0,
+              38.0,
+              26.0,
+              12.0,
+              11.0,
+              11.0,
+              16.0,
+              24.0,
+              22.0,
+              19.0
+            ],
+            "mean": 23.64,
+            "max": 43.0
+          },
+          "temperature_before": 266,
+          "temperature_after": 266,
+          "battery_level": {
+            "before": 3144589,
+            "after": 3144589
+          },
+          "args": [
+            "--video-bit-rate=6M",
+            "--max-fps=60",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\n2026-11-09 18:37:25.311 scrcpy[19609:2469720] Warning: Window move completed without beginning\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 43 fps (+5 frames skipped)\nINFO: 38 fps\nINFO: 38 fps (+4 frames skipped)\nINFO: 26 fps\nINFO: 12 fps\nINFO: 11 fps\nINFO: 11 fps\nINFO: 16 fps\nINFO: 24 fps\nINFO: 22 fps\nINFO: 19 fps\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "native_6M_60_noaudio",
+      "args": [
+        "--video-bit-rate=6M",
+        "--max-fps=60",
+        "--stay-awake",
+        "--no-audio"
+      ],
+      "audio": false,
+      "screen_off": false,
+      "runs": [
+        {
+          "profile": "native_6M_60_noaudio",
+          "exit_code": 0,
+          "duration_s": 16.75,
+          "avg_current_mA": 1079.3,
+          "min_current_mA": 943.0,
+          "max_current_mA": 1279.3,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 4.3,
+          "fps": {
+            "samples": [
+              26.0,
+              51.0,
+              17.0,
+              51.0,
+              42.0,
+              40.0,
+              19.0,
+              38.0,
+              43.0,
+              40.0,
+              43.0
+            ],
+            "mean": 37.27,
+            "max": 51.0
+          },
+          "temperature_before": 266,
+          "temperature_after": 266,
+          "battery_level": {
+            "before": 3144589,
+            "after": 3144589
+          },
+          "args": [
+            "--video-bit-rate=6M",
+            "--max-fps=60",
+            "--stay-awake",
+            "--no-audio"
+          ],
+          "audio": false,
+          "screen_off": false,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 84.7 MB/s (733930 bytes in 0.008s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] INFO: Applying video encoder constraints\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 26 fps (+10 frames skipped)\nINFO: 51 fps\nINFO: 17 fps\nINFO: 51 fps\nINFO: 42 fps (+3 frames skipped)\nINFO: 40 fps\nINFO: 19 fps (+4 frames skipped)\nINFO: 38 fps (+7 frames skipped)\nINFO: 43 fps\nINFO: 40 fps\nINFO: 43 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "native_6M_60_noaudio",
+          "exit_code": 0,
+          "duration_s": 14.86,
+          "avg_current_mA": 788.6,
+          "min_current_mA": 539.9,
+          "max_current_mA": 986.6,
+          "charge_delta_uAh": -14816,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 3.1,
+          "fps": {
+            "samples": [
+              40.0,
+              48.0,
+              27.0,
+              13.0,
+              12.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              13.0,
+              46.0
+            ],
+            "mean": 22.09,
+            "max": 48.0
+          },
+          "temperature_before": 266,
+          "temperature_after": 267,
+          "battery_level": {
+            "before": 3144589,
+            "after": 3129773
+          },
+          "args": [
+            "--video-bit-rate=6M",
+            "--max-fps=60",
+            "--stay-awake",
+            "--no-audio"
+          ],
+          "audio": false,
+          "screen_off": false,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 254.5 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 40 fps\nINFO: 48 fps\nINFO: 27 fps\nINFO: 13 fps\nINFO: 12 fps\nINFO: 11 fps\nINFO: 11 fps\nINFO: 11 fps\nINFO: 11 fps\nINFO: 13 fps\nINFO: 46 fps\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "native_4M_30_audio",
+      "args": [
+        "--video-bit-rate=4M",
+        "--max-fps=30",
+        "--stay-awake"
+      ],
+      "audio": true,
+      "screen_off": false,
+      "runs": [
+        {
+          "profile": "native_4M_30_audio",
+          "exit_code": 0,
+          "duration_s": 14.85,
+          "avg_current_mA": 548.9,
+          "min_current_mA": 285.9,
+          "max_current_mA": 927.7,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 4.2,
+          "fps": {
+            "samples": [
+              21.0,
+              23.0,
+              22.0,
+              30.0,
+              16.0,
+              27.0,
+              16.0,
+              17.0,
+              10.0,
+              11.0,
+              12.0
+            ],
+            "mean": 18.64,
+            "max": 30.0
+          },
+          "temperature_before": 267,
+          "temperature_after": 267,
+          "battery_level": {
+            "before": 3129773,
+            "after": 3129773
+          },
+          "args": [
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 227.3 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 21 fps (+1 frames skipped)\nINFO: 23 fps\nINFO: 22 fps\nINFO: 30 fps\nINFO: 16 fps\nINFO: 27 fps\nINFO: 16 fps\nINFO: 17 fps\nINFO: 10 fps\nINFO: 11 fps\nINFO: 12 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "native_4M_30_audio",
+          "exit_code": 0,
+          "duration_s": 14.92,
+          "avg_current_mA": 641.0,
+          "min_current_mA": 355.8,
+          "max_current_mA": 1075.7,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 4.5,
+          "fps": {
+            "samples": [
+              21.0,
+              23.0,
+              19.0,
+              17.0,
+              12.0,
+              10.0,
+              12.0,
+              15.0,
+              20.0,
+              34.0,
+              12.0
+            ],
+            "mean": 17.73,
+            "max": 34.0
+          },
+          "temperature_before": 267,
+          "temperature_after": 268,
+          "battery_level": {
+            "before": 3129773,
+            "after": 3129773
+          },
+          "args": [
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake"
+          ],
+          "audio": true,
+          "screen_off": false,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 262.0 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 21 fps\nINFO: 23 fps\nINFO: 19 fps\nINFO: 17 fps\nINFO: 12 fps\nINFO: 10 fps\nINFO: 12 fps\nINFO: 15 fps\nINFO: 20 fps\nINFO: 34 fps\nINFO: 12 fps\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "native_4M_30_noaudio_screenoff",
+      "args": [
+        "--video-bit-rate=4M",
+        "--max-fps=30",
+        "--stay-awake",
+        "--no-audio",
+        "--turn-screen-off"
+      ],
+      "audio": false,
+      "screen_off": true,
+      "runs": [
+        {
+          "profile": "native_4M_30_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 13.8,
+          "avg_current_mA": 301.0,
+          "min_current_mA": 184.0,
+          "max_current_mA": 653.1,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 1.8,
+          "fps": {
+            "samples": [
+              26.0,
+              11.0,
+              17.0,
+              11.0,
+              10.0,
+              10.0,
+              11.0,
+              10.0,
+              11.0,
+              11.0,
+              13.0
+            ],
+            "mean": 12.82,
+            "max": 26.0
+          },
+          "temperature_before": 268,
+          "temperature_after": 268,
+          "battery_level": {
+            "before": 3129773,
+            "after": 3129773
+          },
+          "args": [
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 26 fps\nINFO: 11 fps\nINFO: 17 fps\nINFO: 11 fps\nINFO: 10 fps\nINFO: 10 fps\nINFO: 11 fps\nINFO: 10 fps\nINFO: 11 fps\nINFO: 11 fps\nINFO: 13 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "native_4M_30_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 14.38,
+          "avg_current_mA": 515.7,
+          "min_current_mA": 141.9,
+          "max_current_mA": 1405.0,
+          "charge_delta_uAh": -10729,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 1.9,
+          "fps": {
+            "samples": [
+              9.0,
+              2.0,
+              20.0,
+              12.0,
+              17.0,
+              11.0,
+              10.0,
+              23.0,
+              10.0,
+              25.0,
+              32.0
+            ],
+            "mean": 15.55,
+            "max": 32.0
+          },
+          "temperature_before": 268,
+          "temperature_after": 268,
+          "battery_level": {
+            "before": 3129773,
+            "after": 3119044
+          },
+          "args": [
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 9 fps\nINFO: 2 fps\nINFO: 20 fps\nINFO: 12 fps\nINFO: 17 fps\nINFO: 11 fps\nINFO: 10 fps\nINFO: 23 fps\nINFO: 10 fps\nINFO: 25 fps\nINFO: 32 fps\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "720_4M_30_noaudio_screenoff",
+      "args": [
+        "--max-size=720",
+        "--video-bit-rate=4M",
+        "--max-fps=30",
+        "--stay-awake",
+        "--no-audio",
+        "--turn-screen-off"
+      ],
+      "audio": false,
+      "screen_off": true,
+      "runs": [
+        {
+          "profile": "720_4M_30_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 15.32,
+          "avg_current_mA": 382.9,
+          "min_current_mA": 154.4,
+          "max_current_mA": 901.8,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 2.2,
+          "fps": {
+            "samples": [
+              10.0,
+              8.0,
+              8.0,
+              0.0,
+              0.0,
+              21.0,
+              20.0,
+              6.0,
+              13.0,
+              21.0,
+              28.0
+            ],
+            "mean": 12.27,
+            "max": 28.0
+          },
+          "temperature_before": 268,
+          "temperature_after": 269,
+          "battery_level": {
+            "before": 3119044,
+            "after": 3119044
+          },
+          "args": [
+            "--max-size=720",
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 28.1 MB/s (733930 bytes in 0.025s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 324x720\nINFO: 10 fps\nINFO: 8 fps\nINFO: 8 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 21 fps\nINFO: 20 fps\nINFO: 6 fps\nINFO: 13 fps\nINFO: 21 fps\nINFO: 28 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "720_4M_30_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 15.21,
+          "avg_current_mA": 485.0,
+          "min_current_mA": 144.0,
+          "max_current_mA": 1243.6,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 2.0,
+          "fps": {
+            "samples": [
+              11.0,
+              5.0,
+              10.0,
+              31.0,
+              24.0,
+              12.0,
+              10.0,
+              10.0,
+              11.0,
+              24.0,
+              18.0
+            ],
+            "mean": 15.09,
+            "max": 31.0
+          },
+          "temperature_before": 269,
+          "temperature_after": 269,
+          "battery_level": {
+            "before": 3119044,
+            "after": 3119044
+          },
+          "args": [
+            "--max-size=720",
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 248.9 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 324x720\nINFO: 11 fps\nINFO: 5 fps\nINFO: 10 fps\nINFO: 31 fps\nINFO: 24 fps (+1 frames skipped)\nINFO: 12 fps\nINFO: 10 fps\nINFO: 10 fps\nINFO: 11 fps\nINFO: 24 fps\nINFO: 18 fps\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "native_4M_30_h265_noaudio_screenoff",
+      "args": [
+        "--video-bit-rate=4M",
+        "--max-fps=30",
+        "--stay-awake",
+        "--no-audio",
+        "--turn-screen-off",
+        "--video-codec=h265"
+      ],
+      "audio": false,
+      "screen_off": true,
+      "runs": [
+        {
+          "profile": "native_4M_30_h265_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 15.04,
+          "avg_current_mA": 588.4,
+          "min_current_mA": 362.2,
+          "max_current_mA": 1062.6,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 2.0,
+          "fps": {
+            "samples": [
+              20.0,
+              16.0,
+              11.0,
+              1.0,
+              0.0,
+              0.0,
+              11.0,
+              16.0,
+              31.0,
+              12.0,
+              27.0
+            ],
+            "mean": 13.18,
+            "max": 31.0
+          },
+          "temperature_before": 269,
+          "temperature_after": 269,
+          "battery_level": {
+            "before": 3119044,
+            "after": 3119044
+          },
+          "args": [
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off",
+            "--video-codec=h265"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 20 fps (+5 frames skipped)\nINFO: 16 fps\nINFO: 11 fps\nINFO: 1 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 11 fps\nINFO: 16 fps\nINFO: 31 fps\nINFO: 12 fps\nINFO: 27 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "native_4M_30_h265_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 14.59,
+          "avg_current_mA": 699.0,
+          "min_current_mA": 347.0,
+          "max_current_mA": 1030.6,
+          "charge_delta_uAh": -10218,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 2.0,
+          "fps": {
+            "samples": [
+              9.0,
+              2.0,
+              5.0,
+              8.0,
+              17.0,
+              14.0,
+              28.0,
+              30.0,
+              28.0,
+              29.0,
+              24.0
+            ],
+            "mean": 17.64,
+            "max": 30.0
+          },
+          "temperature_before": 269,
+          "temperature_after": 269,
+          "battery_level": {
+            "before": 3119044,
+            "after": 3108826
+          },
+          "args": [
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off",
+            "--video-codec=h265"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] ERROR: Capture/encoding error: java.lang.IllegalArgumentException: \n[server] INFO: Applying video encoder constraints\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 864x1920\nINFO: 9 fps\nINFO: 2 fps\nINFO: 5 fps\nINFO: 8 fps\nINFO: 17 fps\nINFO: 14 fps\nINFO: 28 fps\nINFO: 30 fps\nINFO: 28 fps\nINFO: 29 fps\nINFO: 24 fps\nINFO: Time limit reached"
+        }
+      ]
+    },
+    {
+      "profile": "720_4M_30_h265_noaudio_screenoff",
+      "args": [
+        "--max-size=720",
+        "--video-bit-rate=4M",
+        "--max-fps=30",
+        "--stay-awake",
+        "--no-audio",
+        "--turn-screen-off",
+        "--video-codec=h265"
+      ],
+      "audio": false,
+      "screen_off": true,
+      "runs": [
+        {
+          "profile": "720_4M_30_h265_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 15.22,
+          "avg_current_mA": 622.1,
+          "min_current_mA": 176.4,
+          "max_current_mA": 959.5,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 1.5,
+          "fps": {
+            "samples": [
+              9.0,
+              2.0,
+              0.0,
+              0.0,
+              5.0,
+              20.0,
+              18.0,
+              18.0,
+              17.0,
+              14.0,
+              11.0
+            ],
+            "mean": 10.36,
+            "max": 20.0
+          },
+          "temperature_before": 269,
+          "temperature_after": 269,
+          "battery_level": {
+            "before": 3108826,
+            "after": 3108826
+          },
+          "args": [
+            "--max-size=720",
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off",
+            "--video-codec=h265"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 205.3 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 324x720\nINFO: 9 fps\nINFO: 2 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 5 fps\nINFO: 20 fps\nINFO: 18 fps\nINFO: 18 fps\nINFO: 17 fps\nINFO: 14 fps\nINFO: 11 fps\nINFO: Time limit reached"
+        },
+        {
+          "profile": "720_4M_30_h265_noaudio_screenoff",
+          "exit_code": 0,
+          "duration_s": 14.02,
+          "avg_current_mA": 297.6,
+          "min_current_mA": 149.2,
+          "max_current_mA": 870.4,
+          "charge_delta_uAh": 0,
+          "tx_mbps": null,
+          "mac_cpu_percent_avg": 1.4,
+          "fps": {
+            "samples": [
+              15.0,
+              10.0,
+              4.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              5.0,
+              21.0
+            ],
+            "mean": 5.0,
+            "max": 21.0
+          },
+          "temperature_before": 269,
+          "temperature_after": 269,
+          "battery_level": {
+            "before": 3108826,
+            "after": 3108826
+          },
+          "args": [
+            "--max-size=720",
+            "--video-bit-rate=4M",
+            "--max-fps=30",
+            "--stay-awake",
+            "--no-audio",
+            "--turn-screen-off",
+            "--video-codec=h265"
+          ],
+          "audio": false,
+          "screen_off": true,
+          "log_tail": "/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 60.1 MB/s (733930 bytes in 0.012s)\n[server] INFO: Device: [motorola] motorola moto g85 5G (Android 16)\n[server] INFO: Device display turned off\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:         (tcpip)  192.168.4.83:42005              device  moto_g85_5G\nINFO:     --> (tcpip)  adb-ZY22K8ZRM8-gUaHWE._adb-tls-connect._tcp            device  moto_g85_5G\nINFO: Renderer: metal\nINFO: Interop: videotoolbox\nINFO: Video decoding: videotoolbox\nINFO: FPS counter started\nINFO: Texture (VideoToolbox): 324x720\nINFO: 15 fps\nINFO: 10 fps\nINFO: 4 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 0 fps\nINFO: 5 fps\nINFO: 21 fps\nINFO: Time limit reached"
+        }
+      ]
+    }
+  ]
+}
