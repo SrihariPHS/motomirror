@@ -8,23 +8,23 @@ Definition of done: `./scripts/verify.sh --live` produces at least 99/100 with z
 
 | ID | Requirement | Acceptance criteria | Status |
 | --- | --- | --- | --- |
-| R1 | Project scaffold | Swift package builds a macOS app, a core library, a CLI, and a test target | pending |
-| R2 | Tool discovery | Finds adb, scrcpy, ffmpeg in PATH, Homebrew, Android SDK, and app resources; reports missing tools | pending |
-| R3 | Device discovery | Parses `adb devices -l`, states, models, USB/wireless transport; polls without hanging | pending |
-| R4 | Device details | Reads battery, storage, screen size, Android version, SDK, ABI | pending |
-| R5 | Mirror launch | Starts scrcpy with serial, bitrate, size, FPS, audio, recording, stay-awake and window options | pending |
-| R6 | Session lifecycle | Start, stop, restart, exit code, logs, and stale-process cleanup | pending |
-| R7 | Screenshot | Captures a PNG through adb and reveals it in Finder | pending |
-| R8 | Recording | Records an MP4 through scrcpy and reveals it in Finder | pending |
-| R9 | Wireless pairing | `adb pair`, `adb connect`, `adb tcpip`, validation, and clear errors | pending |
-| R10 | Auto reconnect | Detects a dropped device and restarts mirroring when it returns | pending |
-| R11 | Setup guidance | In-app USB debugging steps, dependency install action, unauthorized-device guidance | pending |
-| R12 | App UI | Native SwiftUI device list, detail panel, options, logs, empty/error/unauthorized states | pending |
-| R13 | Demo mode | Renders every UI state with sample data for screenshots and verification | pending |
-| R14 | CLI | `motomirrorctl doctor`, `devices`, `info`, `screenshot`, `mirror`, `wireless` | pending |
-| R15 | Packaging | Builds a signed `.app` with icon, Info.plist, and install script | pending |
-| R16 | Unit tests | Parsers, command builder, validation, process runner, and controller logic tested | pending |
-| R17 | Live verification | 100 weighted checks produce a JSON and Markdown report with evidence | pending |
-| R18 | Real mirror proof | Live scrcpy recording with valid H.264 video and audio; screenshot proof from the phone | pending |
-| R19 | Physical Moto check | Moto G85 model, USB transport, input injection, and live mirror all pass | pending |
-| R20 | Docs | README covers install, USB debugging, wireless pairing, troubleshooting, and verification | pending |
+| R1 | Project scaffold | Swift package builds a macOS app, a core library, a CLI, and a test target | done |
+| R2 | Tool discovery | Finds adb, scrcpy, ffmpeg in PATH, Homebrew, Android SDK, and app resources; reports missing tools | done |
+| R3 | Device discovery | Parses `adb devices -l`, states, models, USB/wireless transport; polls without hanging | done |
+| R4 | Device details | Reads battery, storage, screen size, Android version, SDK, ABI | done |
+| R5 | Mirror launch | Starts scrcpy with serial, bitrate, size, FPS, audio, recording, stay-awake and window options | done |
+| R6 | Session lifecycle | Start, stop, restart, exit code, logs, and stale-process cleanup | done |
+| R7 | Screenshot | Captures a PNG through adb and reveals it in Finder | done |
+| R8 | Recording | Records an MP4 through scrcpy and reveals it in Finder | done |
+| R9 | Wireless pairing | `adb pair`, `adb connect`, `adb tcpip`, validation, and clear errors | done |
+| R10 | Auto reconnect | Detects a dropped device and restarts mirroring when it returns | done (live kill/restart verified) |
+| R11 | Setup guidance | In-app USB debugging steps, dependency install action, unauthorized-device guidance | done |
+| R12 | App UI | Native SwiftUI device list, detail panel, options, logs, empty/error/unauthorized states | done |
+| R13 | Demo mode | Renders every UI state with sample data for screenshots and verification | done |
+| R14 | CLI | `motomirrorctl doctor`, `devices`, `info`, `screenshot`, `mirror`, `wireless` | done |
+| R15 | Packaging | Builds a signed `.app` with icon, Info.plist, and install script | done |
+| R16 | Unit tests | Parsers, command builder, validation, process runner, and controller logic tested | done |
+| R17 | Live verification | 100 weighted checks produce a JSON and Markdown report with evidence | done |
+| R18 | Real mirror proof | Live scrcpy recording with valid H.264 video and audio; screenshot proof from the phone | done (Android 15 emulator; Moto pending) |
+| R19 | Physical Moto check | Moto G85 model, USB transport, input injection, and live mirror all pass | pending (phone not connected) |
+| R20 | Docs | README covers install, USB debugging, wireless pairing, troubleshooting, and verification | done |
