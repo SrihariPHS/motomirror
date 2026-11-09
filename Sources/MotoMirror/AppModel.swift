@@ -10,6 +10,7 @@ enum MMDefaults {
     static let adbPath = "MotoMirror.adbPath"
     static let scrcpyPath = "MotoMirror.scrcpyPath"
     static let recordingFolder = "MotoMirror.recordingFolder"
+    static let wirelessEndpoint = "MotoMirror.wirelessEndpoint"
 }
 
 // MARK: - Log entries
@@ -53,6 +54,11 @@ final class AppModel: ObservableObject {
     @Published private(set) var screenshotURL: URL?
     @Published private(set) var recordingURL: URL?
 
+    // Wireless
+    @Published private(set) var isDiscoveringWireless = false
+    @Published private(set) var wirelessDiscoveryMessage: String?
+    @Published private(set) var storedWirelessEndpoint: WirelessEndpoint?
+
     // Tools
     @Published private(set) var toolchain: Toolchain?
     @Published private(set) var toolVersionSummary: String?
@@ -95,6 +101,8 @@ final class AppModel: ObservableObject {
     private var lastDetailsRefresh: Date?
     private var lastPollError: String?
     private var lastDetailsError: String?
+    private var lastWirelessConnectAttempt: Date?
+    private var preferredInitialSerial: String?
 
     init(
         adb: any ADBServicing,
@@ -112,6 +120,7 @@ final class AppModel: ObservableObject {
         self.recordingFolder = recordingFolder
             ?? UserDefaults.standard.string(forKey: MMDefaults.recordingFolder)
             ?? ""
+        self.storedWirelessEndpoint = demoMode ? nil : Self.loadWirelessEndpoint()
     }
 
     // MARK: - Factories
@@ -214,8 +223,13 @@ final class AppModel: ObservableObject {
         return devices.first { $0.serial == mirroringSerial }
     }
 
+    private var mirroringWirelessEndpoint: WirelessEndpoint? {
+        guard let mirroringSerial else { return nil }
+        return WirelessEndpoint(serial: mirroringSerial)
+    }
+
     var isWaitingForMirrorDevice: Bool {
-        isWaitingForDevice && mirroringSerial != nil && selectedDevice == nil
+        (isWaitingForDevice || isReconnecting) && mirroringSerial != nil && selectedDevice == nil
     }
 
     var reconnectAttemptLimit: Int { policy.maxAttempts }
@@ -290,6 +304,13 @@ final class AppModel: ObservableObject {
         guard !autoStartPending, !hasHandledInitialRefresh else { return }
         autoStartPending = true
         appendLog("AUTO-START armed; waiting for the first device refresh.", level: .info)
+    }
+
+    /// Used by `--select-serial` / `MOTOMIRROR_SELECT_SERIAL` for automated
+    /// verification. The preference is applied once, when the serial appears.
+    func preferInitialSerial(_ serial: String?) {
+        let trimmed = serial?.trimmingCharacters(in: .whitespacesAndNewlines)
+        preferredInitialSerial = (trimmed?.isEmpty == false) ? trimmed : nil
     }
 
     func start() {
@@ -471,8 +492,11 @@ final class AppModel: ObservableObject {
         defaults.removeObject(forKey: MMDefaults.adbPath)
         defaults.removeObject(forKey: MMDefaults.scrcpyPath)
         defaults.removeObject(forKey: MMDefaults.recordingFolder)
+        defaults.removeObject(forKey: MMDefaults.wirelessEndpoint)
         options = .default
         recordingFolder = ""
+        storedWirelessEndpoint = nil
+        lastWirelessConnectAttempt = nil
         errorMessage = nil
         appendLog("Settings reset to defaults.", level: .info)
         detectToolchain()
@@ -496,7 +520,20 @@ final class AppModel: ObservableObject {
         defer { isRefreshing = false }
 
         do {
-            let found = try await adb.devices()
+            var found = try await adb.devices()
+
+            if found.isEmpty,
+               let endpoint = storedWirelessEndpoint,
+               shouldAttemptBackgroundWirelessConnect {
+                let connected = await connectWirelessEndpoint(
+                    endpoint,
+                    reason: "background recovery"
+                )
+                if connected, let refreshed = try? await adb.devices() {
+                    found = refreshed
+                }
+            }
+
             let sorted = found.sorted { lhs, rhs in
                 if lhs.isUsable != rhs.isUsable { return lhs.isUsable }
                 if lhs.transport != rhs.transport { return lhs.transport == .usb }
@@ -548,6 +585,23 @@ final class AppModel: ObservableObject {
     }
 
     private func reconcileSelection() {
+        if let preferredSerial = preferredInitialSerial {
+            preferredInitialSerial = nil
+            if let device = devices.first(where: { $0.serial == preferredSerial }) {
+                if selectedSerial != preferredSerial {
+                    selectedSerial = preferredSerial
+                    details = nil
+                    lastDetailsRefresh = nil
+                    lastDetailsError = nil
+                    appendLog(
+                        "Selected \(device.displayName) over \(device.mmTransportLabel) from the launch request.",
+                        level: .info
+                    )
+                }
+                return
+            }
+        }
+
         if let selectedSerial, devices.contains(where: { $0.serial == selectedSerial }) {
             return
         }
@@ -746,6 +800,9 @@ final class AppModel: ObservableObject {
                 )
             }
             try await scrcpy.start(serial: serial, options: sessionOptions, recordPath: recordURL?.path)
+            if let endpoint = WirelessEndpoint(serial: serial) {
+                rememberWirelessEndpoint(endpoint)
+            }
             if hasUserStopped {
                 await scrcpy.stop()
                 status = await scrcpy.status()
@@ -840,16 +897,19 @@ final class AppModel: ObservableObject {
     private func handleUnexpectedStop() {
         guard userWantsMirroring, !hasUserStopped else { return }
         let device = mirroringDevice
-        guard let device, device.isUsable else {
+        if let device, device.isUsable {
+            scheduleReconnectIfPossible()
+        } else if mirroringWirelessEndpoint != nil {
+            appendLog("Wireless connection dropped; trying to reconnect…", level: .info)
+            scheduleReconnectIfPossible()
+        } else {
             isReconnecting = false
             isWaitingForDevice = true
             appendLog(
                 "Waiting for \(mirroringDeviceName ?? device?.displayName ?? "the phone") to reconnect…",
                 level: .info
             )
-            return
         }
-        scheduleReconnectIfPossible()
     }
 
     private func attemptAutomaticReconnectIfNeeded() {
@@ -858,15 +918,18 @@ final class AppModel: ObservableObject {
               !status.isActive,
               !isReconnecting,
               reconnectTask == nil,
-              let mirroringSerial,
-              let device = devices.first(where: { $0.serial == mirroringSerial && $0.isUsable })
+              let mirroringSerial
         else {
             return
         }
-        if selectedSerial != device.serial {
+        let device = devices.first(where: { $0.serial == mirroringSerial && $0.isUsable })
+        guard device != nil || WirelessEndpoint(serial: mirroringSerial) != nil else {
+            return
+        }
+        if let device, selectedSerial != device.serial {
             select(device.serial)
         }
-        if isWaitingForDevice {
+        if isWaitingForDevice, let device {
             appendLog("\(device.displayName) is back. Restoring the mirror…", level: .info)
             isWaitingForDevice = false
         }
@@ -876,7 +939,7 @@ final class AppModel: ObservableObject {
     private func scheduleReconnectIfPossible() {
         guard reconnectTask == nil else { return }
         let device = mirroringDevice
-        let devicePresent = device?.isUsable == true
+        let devicePresent = device?.isUsable == true || mirroringWirelessEndpoint != nil
         let stopped = hasUserStopped || !userWantsMirroring
 
         guard policy.shouldRetry(
@@ -945,10 +1008,35 @@ final class AppModel: ObservableObject {
             appendLog("Cannot reconnect because adb or scrcpy is missing.", level: .error)
             return
         }
-        guard
-            let serial = mirroringSerial,
-            let device = devices.first(where: { $0.serial == serial && $0.isUsable })
-        else {
+        guard let serial = mirroringSerial else {
+            isReconnecting = false
+            isWaitingForDevice = true
+            return
+        }
+
+        var device = devices.first(where: { $0.serial == serial && $0.isUsable })
+
+        // A wireless mirror may lose its adb transport while the phone is
+        // still reachable. Reconnect the endpoint, refresh once, and only then
+        // decide whether to relaunch scrcpy.
+        if device == nil, let endpoint = WirelessEndpoint(serial: serial) {
+            _ = await connectWirelessEndpoint(endpoint, reason: "reconnect")
+            await waitForRefreshToFinish()
+            await refreshDevices()
+            device = devices.first(where: { $0.serial == serial && $0.isUsable })
+            if device == nil {
+                isReconnecting = false
+                isWaitingForDevice = true
+                appendLog(
+                    "Wireless endpoint \(serial) did not come back yet; keeping the reconnect attempt alive.",
+                    level: .warning
+                )
+                return
+            }
+            appendLog("Wireless phone reconnected at \(serial).", level: .success)
+        }
+
+        guard let device else {
             isReconnecting = false
             isWaitingForDevice = true
             return
@@ -966,6 +1054,39 @@ final class AppModel: ObservableObject {
         if let recordURL { recordingURL = recordURL }
         appendLog("Reconnecting now…", level: .info)
         await launchMirror(serial: device.serial, recordURL: recordURL, isReconnect: true)
+    }
+
+    private func waitForRefreshToFinish() async {
+        let deadline = Date().addingTimeInterval(5)
+        while isRefreshing && Date() < deadline {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+    }
+
+    private var shouldAttemptBackgroundWirelessConnect: Bool {
+        guard storedWirelessEndpoint != nil else { return false }
+        guard let lastWirelessConnectAttempt else { return true }
+        return Date().timeIntervalSince(lastWirelessConnectAttempt) > 10
+    }
+
+    @discardableResult
+    private func connectWirelessEndpoint(
+        _ endpoint: WirelessEndpoint,
+        reason: String
+    ) async -> Bool {
+        lastWirelessConnectAttempt = Date()
+        appendLog("WIRELESS: \(reason) to \(endpoint.serial)…", level: .info)
+        do {
+            let message = try await adb.connect(host: endpoint.host, port: endpoint.port)
+            appendLog("WIRELESS: \(reason) connected: \(message)", level: .success)
+            return true
+        } catch {
+            appendLog(
+                "WIRELESS: \(reason) failed for \(endpoint.serial): \(Self.friendlyMessage(for: error))",
+                level: .warning
+            )
+            return false
+        }
     }
 
     // MARK: - Screenshot and recording
@@ -1040,6 +1161,86 @@ final class AppModel: ObservableObject {
 
     // MARK: - Wireless
 
+    func discoverWirelessEndpoint() async -> (host: String, pairingPort: Int?, connectPort: Int?)? {
+        guard !isDiscoveringWireless else { return nil }
+        guard toolchain != nil else {
+            let message = "Wireless discovery needs adb. Install it from Setup & Help, then try again."
+            wirelessDiscoveryMessage = message
+            appendLog("WIRELESS: \(message)", level: .warning)
+            return nil
+        }
+
+        isDiscoveringWireless = true
+        wirelessDiscoveryMessage = nil
+        defer { isDiscoveringWireless = false }
+
+        do {
+            let services = try await adb.mdnsServices()
+            guard !services.isEmpty else {
+                let message = "No wireless debugging service was advertised. Keep the phone unlocked, on this Wi-Fi network, and open Pair device with pairing code, then click Discover again."
+                wirelessDiscoveryMessage = message
+                appendLog("WIRELESS: discovery found no mDNS services.", level: .warning)
+                return nil
+            }
+
+            let pairing = services.first { $0.kind == .pairing }
+            let connect = services.first { $0.kind == .connect }
+            guard pairing != nil || connect != nil else {
+                let message = "The advertised services are not Android wireless debugging services. Check that the phone is on this Wi-Fi network and try again."
+                wirelessDiscoveryMessage = message
+                appendLog("WIRELESS: non-ADB services advertised: \(serviceSummary(services)).", level: .warning)
+                return nil
+            }
+            // Both advert types carry the same phone host. Ports are kept
+            // service-specific so a pairing attempt never uses the connect port.
+            guard let host = pairing?.host ?? connect?.host, !host.isEmpty else {
+                let message = "The wireless service was advertised without a usable host. Type the address shown on the phone instead."
+                wirelessDiscoveryMessage = message
+                appendLog("WIRELESS: advertised service is missing a host.", level: .warning)
+                return nil
+            }
+
+            let pairingPort = pairing?.port
+            let connectPort = connect?.port
+            appendLog("WIRELESS: discovered \(serviceSummary(services)).", level: .success)
+
+            if pairing == nil {
+                let message = "Found \(host), but the pairing service was not advertised. Open Pair device with pairing code on the phone and click Discover again."
+                wirelessDiscoveryMessage = message
+                return (host, pairingPort, connectPort)
+            }
+            if connectPort == nil {
+                let message = "Found \(host) and pairing port \(pairingPort ?? 0). The connect service was not advertised; keep the connect port at 5555."
+                wirelessDiscoveryMessage = message
+                return (host, pairingPort, connectPort)
+            }
+
+            wirelessDiscoveryMessage = "Found \(host) — pairing port \(pairingPort ?? 0), connect port \(connectPort ?? 0)."
+            return (host, pairingPort, connectPort)
+        } catch {
+            let message = "Wireless discovery failed. \(Self.friendlyMessage(for: error))"
+            wirelessDiscoveryMessage = message
+            appendLog("WIRELESS: \(message)", level: .warning)
+            return nil
+        }
+    }
+
+    private func serviceSummary(_ services: [ADBMDNSService]) -> String {
+        services.map { "\($0.kind.rawValue) \($0.hostPort)" }.joined(separator: ", ")
+    }
+
+    private func rememberWirelessEndpoint(_ endpoint: WirelessEndpoint) {
+        let changed = storedWirelessEndpoint != endpoint
+        storedWirelessEndpoint = endpoint
+        guard !isDemoMode else { return }
+        if let data = try? JSONEncoder().encode(endpoint) {
+            UserDefaults.standard.set(data, forKey: MMDefaults.wirelessEndpoint)
+        }
+        if changed {
+            appendLog("WIRELESS: saved endpoint \(endpoint.serial).", level: .info)
+        }
+    }
+
     func pairAndConnect(
         host: String,
         pairingPort: Int,
@@ -1065,6 +1266,10 @@ final class AppModel: ObservableObject {
             appendLog("Connecting to \(trimmedHost):\(connectPort)…", level: .info)
             let connectMessage = try await adb.connect(host: trimmedHost, port: connectPort)
             appendLog(connectMessage, level: .success)
+            if let endpoint = try? WirelessEndpoint(host: trimmedHost, port: connectPort) {
+                rememberWirelessEndpoint(endpoint)
+                lastWirelessConnectAttempt = Date()
+            }
             await refreshDevices()
             let serial = "\(trimmedHost):\(connectPort)"
             if devices.contains(where: { $0.serial == serial }) {
@@ -1262,6 +1467,13 @@ final class AppModel: ObservableObject {
         }
         return options
     }
+
+    private static func loadWirelessEndpoint() -> WirelessEndpoint? {
+        guard let data = UserDefaults.standard.data(forKey: MMDefaults.wirelessEndpoint) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(WirelessEndpoint.self, from: data)
+    }
 }
 
 // MARK: - Device display helpers
@@ -1309,6 +1521,7 @@ struct UnavailableADBService: ADBServicing {
     func screenshot(serial: String) async throws -> Data { throw missing }
     func pair(host: String, port: Int, code: String) async throws -> String { throw missing }
     func connect(host: String, port: Int) async throws -> String { throw missing }
+    func mdnsServices() async throws -> [ADBMDNSService] { throw missing }
     func disconnect(host: String, port: Int) async throws { throw missing }
     func enableTCPIP(serial: String, port: Int) async throws { throw missing }
     func sendKey(_ key: String, to serial: String) async throws { throw missing }

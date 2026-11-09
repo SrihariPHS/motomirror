@@ -16,8 +16,8 @@ Definition of done: `./scripts/verify.sh --live` produces at least 99/100 with z
 | R6 | Session lifecycle | Start, stop, restart, exit code, logs, and stale-process cleanup | done |
 | R7 | Screenshot | Captures a PNG through adb and reveals it in Finder | done |
 | R8 | Recording | Records an MP4 through scrcpy and reveals it in Finder | done |
-| R9 | Wireless pairing | `adb pair`, `adb connect`, `adb tcpip`, validation, and clear errors | done |
-| R10 | Auto reconnect | Detects a dropped device and restarts mirroring when it returns | done (live kill/restart verified) |
+| R9 | Wireless pairing | `adb pair`, `adb connect`, `adb tcpip`, validation, and clear errors | done (pair code unit-tested; physical pair pending) |
+| R10 | Auto reconnect | Detects a dropped device and restarts mirroring when it returns | done (live wireless endpoint reconnect verified) |
 | R11 | Setup guidance | In-app USB debugging steps, dependency install action, unauthorized-device guidance | done |
 | R12 | App UI | Native SwiftUI device list, detail panel, options, logs, empty/error/unauthorized states | done |
 | R13 | Demo mode | Renders every UI state with sample data for screenshots and verification | done |

@@ -7,6 +7,7 @@ public protocol ADBServicing: Sendable {
     func screenshot(serial: String) async throws -> Data
     func pair(host: String, port: Int, code: String) async throws -> String
     func connect(host: String, port: Int) async throws -> String
+    func mdnsServices() async throws -> [ADBMDNSService]
     func disconnect(host: String, port: Int) async throws
     func enableTCPIP(serial: String, port: Int) async throws
     func sendKey(_ key: String, to serial: String) async throws

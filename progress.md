@@ -24,3 +24,7 @@
 - Physical target check `--target moto` was run against the emulator to prove it rejects a non-Moto: 58/100, D01-D16/M/W all failed because the emulator is not a Moto. The 100/100 emulator report was preserved.
 
 Next: connect the Moto G85 with USB debugging enabled and the RSA prompt allowed, then run `make verify-live`. The physical gate adds model contains moto/g85 and USB transport checks. Use `./scripts/verify-loop.sh 0 600` for a continuous gate.
+- Wireless discovery: added `ADBMDNSService`/`ADBMDNSParser`, `WirelessEndpoint`, `ADBClient.mdnsServices`, app Discover button, and `motomirrorctl wireless discover --json`. 9 parser/endpoint tests pass. The emulator advertises no mDNS services, so the Discover button is build-verified but not live-exercised.
+- Wireless reconnect: app mirrored over 127.0.0.1:5555, endpoint disconnected, app re-ran adb connect and started a new scrcpy child on the wireless serial. Persisted endpoint JSON observed.
+- Final gate run 20261109-180730: 100/100, 0 failed, 0 skipped, 111 unit tests, 18/18 artifact hashes match. M14 false positive fixed to use process executable names.
+- Physical Moto pair-code flow still needs the phone. The app must be tested with the actual six-digit code from the Moto's Wireless debugging dialog.

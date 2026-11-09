@@ -269,6 +269,24 @@ struct DoctorPayload: Encodable {
     }
 }
 
+struct MDNSServicePayload: Encodable {
+    let name: String
+    let type: String
+    let kind: String
+    let host: String
+    let port: Int
+    let hostPort: String
+
+    init(_ service: ADBMDNSService) {
+        name = service.name
+        type = service.type
+        kind = service.kind.rawValue
+        host = service.host
+        port = service.port
+        hostPort = service.hostPort
+    }
+}
+
 struct DevicePayload: Encodable {
     let serial: String
     let state: String
@@ -376,6 +394,7 @@ enum CLI {
       motomirrorctl info --serial SERIAL [--json]
       motomirrorctl screenshot --serial SERIAL --out PATH
       motomirrorctl mirror --serial SERIAL [options]
+      motomirrorctl wireless discover [--json]
       motomirrorctl wireless pair --host HOST --port PORT --code CODE
       motomirrorctl wireless connect --host HOST --port PORT
       motomirrorctl wireless disconnect --host HOST --port PORT
@@ -736,7 +755,7 @@ enum CLI {
     static func wireless(_ arguments: [String]) async throws -> Int32 {
         guard let subcommand = arguments.first else {
             throw CLIError.usage(
-                "Missing wireless subcommand. Use pair, connect, disconnect, or tcpip."
+                "Missing wireless subcommand. Use discover, pair, connect, disconnect, or tcpip."
             )
         }
         let rest = Array(arguments.dropFirst())
@@ -744,6 +763,25 @@ enum CLI {
         let client = makeADBClient(adbURL: adbURL)
 
         switch subcommand {
+        case "discover":
+            let options = try CommandOptions(rest, flagOptions: ["json"])
+            let services = try await client.mdnsServices()
+            if options.flags.contains("json") {
+                writeStandardOutput(try jsonString(services.map(MDNSServicePayload.init)))
+            } else if services.isEmpty {
+                writeStandardOutput(
+                    "No wireless debugging services found. Open the phone's Wireless debugging "
+                        + "pairing dialog, keep both devices on the same Wi-Fi, and retry."
+                )
+            } else {
+                for service in services {
+                    writeStandardOutput(
+                        "\(service.kind.rawValue)\t\(service.hostPort)\t\(service.name)"
+                    )
+                }
+            }
+            return 0
+
         case "pair":
             let options = try CommandOptions(rest, valueOptions: ["host", "port", "code"])
             let host = try validHost(options.required("host"))

@@ -157,6 +157,23 @@ final class DemoADBService: ADBServicing, @unchecked Sendable {
         await awaitTask { "Successfully paired to \(host):\(port)" }
     }
 
+    func mdnsServices() async throws -> [ADBMDNSService] {
+        [
+            ADBMDNSService(
+                name: "adb-demo-pairing",
+                type: "_adb-tls-pairing._tcp",
+                host: "192.168.1.55",
+                port: 37001
+            ),
+            ADBMDNSService(
+                name: "adb-demo-connect",
+                type: "_adb-tls-connect._tcp",
+                host: "192.168.1.55",
+                port: 5555
+            )
+        ]
+    }
+
     func connect(host: String, port: Int) async throws -> String {
         let serial = "\(host):\(port)"
         return withLock {

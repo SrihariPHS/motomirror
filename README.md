@@ -76,7 +76,27 @@ If the list is empty, see [Troubleshooting](#troubleshooting) and
 
 ## Wireless debugging
 
-### Pair with a code (Android 11+)
+### Pair in the app (recommended)
+
+1. Keep the phone and the Mac on the same Wi-Fi network. Turn off VPNs.
+2. On the phone, open **Settings > System > Developer options > Wireless
+   debugging** and turn it on.
+3. Tap **Pair device with pairing code** and leave that dialog open. It shows a
+   pairing address like `192.168.1.42:37123` and a six-digit code.
+4. In MotoMirror, click **Wireless…**, then **Discover**. The app reads
+   Android's mDNS pairing advertisement and fills the host and both ports. Enter
+   the six-digit code and click **Pair & Connect**.
+5. Pick the phone in the sidebar and click **Start Mirroring**. MotoMirror
+   remembers the wireless endpoint. If Wi-Fi drops, it re-runs `adb connect` and
+   restarts the mirror when the phone returns.
+
+The CLI exposes the same discovery step for diagnostics:
+
+```bash
+motomirrorctl wireless discover --json
+```
+
+### Pair with the CLI (Android 11+)
 
 1. Keep the phone and the Mac on the same Wi-Fi network. Turn off VPNs.
 2. On the phone, open **Settings > System > Developer options > Wireless
@@ -183,11 +203,14 @@ are written under `verification/`.
 ### Current verification status
 
 - Static gate: **58/58** checks.
-- Unit tests: **102 tests, 0 failures**.
-- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261109-172038`.
+- Unit tests: **111 tests, 0 failures**.
+- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261109-180730`.
 - Live mirror proof: H.264 video at 1080x2400 with 124 frames, plus Opus audio.
 - Wireless proof: connect, screenshot, mirror, and disconnect over
   `127.0.0.1:5555`.
+- Wireless reconnect proof: after `adb disconnect 127.0.0.1:5555`, the app
+  re-ran `adb connect` and a new scrcpy child started on the wireless serial.
+- mDNS discovery parser: 9 tests, plus `motomirrorctl wireless discover --json`.
 - Auto-reconnect proof: killing the scrcpy child under a running app produced
   a new scrcpy child with the same parent.
 - Physical Moto G85 gate: pending the phone. Run `make verify-live` with the

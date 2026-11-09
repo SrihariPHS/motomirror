@@ -21,13 +21,29 @@ struct MotoMirrorApp: App {
             || ["1", "true", "yes"].contains(environment["MOTOMIRROR_DEMO"]?.lowercased() ?? "")
         let autoMirror = CommandLine.arguments.contains("--auto-mirror")
             || ["1", "true", "yes"].contains(environment["MOTOMIRROR_AUTOSTART"]?.lowercased() ?? "")
+        let preferredSerial = Self.launchValue(for: "--select-serial")
+            ?? environment["MOTOMIRROR_SELECT_SERIAL"]
 
         let model = demo ? AppModel.demo() : AppModel.live()
         model.installSignalHandlers()
+        model.preferInitialSerial(preferredSerial)
         if autoMirror {
             model.enableAutoMirror()
         }
         _model = StateObject(wrappedValue: model)
+    }
+
+    private static func launchValue(for flag: String) -> String? {
+        let arguments = CommandLine.arguments
+        var value: String?
+        for (index, argument) in arguments.enumerated() {
+            if argument == flag, index + 1 < arguments.count {
+                value = arguments[index + 1]
+            } else if argument.hasPrefix(flag + "=") {
+                value = String(argument.dropFirst(flag.count + 1))
+            }
+        }
+        return value
     }
 
     var body: some Scene {

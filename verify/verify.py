@@ -1798,16 +1798,33 @@ class Harness:
 
     def check_M14(self):
         serial = self.require_serial()
-        result = self.run(["ps", "-axo", "pid=,command="], timeout=20)
+        result = self.run(["ps", "-axo", "pid=,ppid=,comm=,args="], timeout=20)
+        own_pids = {str(os.getpid()), str(os.getppid())}
         offenders = []
         for line in result.stdout.splitlines():
-            if "scrcpy" not in line:
+            parts = line.split(None, 3)
+            if len(parts) < 3:
                 continue
-            if serial and serial in line:
-                offenders.append(line.strip())
-            elif re.search(r"/scrcpy(?:\s|$)", line) and "motomirrorctl" not in line:
-                offenders.append(line.strip())
-        return not offenders, "orphan scrcpy processes={}".format(offenders[:10] or "none")
+            pid, ppid, comm = parts[0], parts[1], parts[2]
+            args = parts[3] if len(parts) > 3 else ""
+            if pid in own_pids:
+                continue
+            # Only a real scrcpy executable counts. A shell, Python process,
+            # pkill, log, or argument that merely contains "scrcpy" must not
+            # match.
+            comm_name = os.path.basename(comm).lower()
+            argv0 = args.split(None, 1)[0] if args else ""
+            argv0_name = os.path.basename(argv0).lower() if argv0 else ""
+            if comm_name == "scrcpy" or argv0_name == "scrcpy":
+                offenders.append(
+                    "pid={} ppid={} comm={} args={}".format(pid, ppid, comm, args)
+                )
+        return (
+            not offenders,
+            "real scrcpy executable processes={} serial={}\nps evidence:\n{}".format(
+                offenders[:10] or "none", serial, result.evidence(1200)
+            ),
+        )
 
     def check_M15(self):
         result, path = self.no_audio_mirror()

@@ -10,6 +10,7 @@ struct WirelessPairingView: View {
     @State private var pairingCode = ""
     @State private var connectPort = "5555"
     @State private var validationMessage: String?
+    @State private var discoveryInfo: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,10 +19,10 @@ struct WirelessPairingView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     connectionFields
-                    instructions
                     if let validationMessage {
                         inlineError(validationMessage)
                     }
+                    instructions
                 }
                 .padding(22)
             }
@@ -67,20 +68,62 @@ struct WirelessPairingView: View {
         VStack(alignment: .leading, spacing: 13) {
             SectionHeader(
                 title: "Phone address",
-                subtitle: "Copy these values from the phone's pairing dialog",
+                subtitle: "Discover automatically or copy the values from the phone",
                 icon: "network"
             )
 
             VStack(alignment: .leading, spacing: 6) {
                 FieldLabel(text: "Host")
-                TextField("192.168.1.42", text: $host)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(size: 13, design: .monospaced))
-                    .disabled(model.isPairing)
-                    .accessibilityLabel("Phone IP address")
-                Text("The IP address shown under Wireless debugging.")
+                HStack(spacing: 8) {
+                    TextField("192.168.1.42", text: $host)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(size: 13, design: .monospaced))
+                        .disabled(model.isPairing || model.isDiscoveringWireless)
+                        .accessibilityLabel("Phone IP address")
+
+                    Button {
+                        discover()
+                    } label: {
+                        HStack(spacing: 5) {
+                            if model.isDiscoveringWireless {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Image(systemName: "wifi")
+                            }
+                            Text(model.isDiscoveringWireless ? "Discovering…" : "Discover")
+                        }
+                    }
+                    .buttonStyle(MMSecondaryButtonStyle())
+                    .disabled(model.isPairing || model.isDiscoveringWireless)
+                    .help("Find the phone's wireless debugging service")
+                }
+                Text("The address shown under Wireless debugging.")
                     .font(.system(size: 9.5))
                     .foregroundStyle(.tertiary)
+
+                if model.isDiscoveringWireless {
+                    HStack(spacing: 7) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Looking for the phone's wireless debugging service…")
+                            .font(.system(size: 10.5))
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 2)
+                } else if let discoveryInfo {
+                    HStack(alignment: .top, spacing: 7) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(MMTheme.green)
+                            .padding(.top, 1)
+                        Text(discoveryInfo)
+                            .font(.system(size: 10.5))
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.top, 2)
+                }
             }
 
             HStack(alignment: .top, spacing: 12) {
@@ -89,7 +132,7 @@ struct WirelessPairingView: View {
                     TextField("37123", text: $pairingPort)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(size: 13, design: .monospaced))
-                        .disabled(model.isPairing)
+                        .disabled(model.isPairing || model.isDiscoveringWireless)
                         .accessibilityLabel("Pairing port")
                 }
                 VStack(alignment: .leading, spacing: 6) {
@@ -97,7 +140,7 @@ struct WirelessPairingView: View {
                     TextField("123456", text: $pairingCode)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(size: 13, design: .monospaced))
-                        .disabled(model.isPairing)
+                        .disabled(model.isPairing || model.isDiscoveringWireless)
                         .accessibilityLabel("Six digit pairing code")
                 }
                 VStack(alignment: .leading, spacing: 6) {
@@ -105,12 +148,12 @@ struct WirelessPairingView: View {
                     TextField("5555", text: $connectPort)
                         .textFieldStyle(.roundedBorder)
                         .font(.system(size: 13, design: .monospaced))
-                        .disabled(model.isPairing)
+                        .disabled(model.isPairing || model.isDiscoveringWireless)
                         .accessibilityLabel("Wireless connection port")
                 }
             }
 
-            Text("The pairing port and code appear only in the “Pair device with pairing code” dialog. The connect port is usually 5555.")
+            Text("Discover finds the host and ports from the phone's pairing dialog. If it doesn't find the phone, type the values manually. The connect port is usually 5555.")
                 .font(.system(size: 9.5))
                 .foregroundStyle(.tertiary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -122,7 +165,7 @@ struct WirelessPairingView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(
                 title: "On the phone",
-                subtitle: "Enable Wireless debugging first",
+                subtitle: "Same Wi-Fi network as this Mac",
                 icon: "iphone"
             )
             NumberedStep(
@@ -134,14 +177,20 @@ struct WirelessPairingView: View {
             NumberedStep(
                 number: 2,
                 title: "Pair device with pairing code",
-                detail: "Tap “Pair device with pairing code”. The phone shows an IP address, a port, and a six-digit code.",
+                detail: "Tap “Pair device with pairing code” and keep that dialog open. The phone shows a host, port, and six-digit code.",
                 icon: "number"
             )
             NumberedStep(
                 number: 3,
-                title: "Enter the values here",
-                detail: "Type the address, pairing port, and code above. MotoMirror pairs, then connects on the normal port.",
+                title: "Click Discover",
+                detail: "MotoMirror finds the phone's host, pairing port, and connect port. Manual entry still works as a fallback.",
                 icon: "arrow.right"
+            )
+            NumberedStep(
+                number: 4,
+                title: "Enter the code and connect",
+                detail: "Type the six-digit code, then click Pair & Connect.",
+                icon: "link"
             )
         }
         .mmCard(padding: 16)
@@ -194,14 +243,46 @@ struct WirelessPairingView: View {
                 Label("Pair & Connect", systemImage: "link")
             }
             .buttonStyle(MMPrimaryButtonStyle())
-            .disabled(model.isPairing)
+            .disabled(model.isPairing || model.isDiscoveringWireless)
             .keyboardShortcut(.defaultAction)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
     }
 
+    private func discover() {
+        guard !model.isDiscoveringWireless, !model.isPairing else { return }
+        validationMessage = nil
+        discoveryInfo = nil
+
+        Task {
+            let result = await model.discoverWirelessEndpoint()
+            if let result {
+                host = result.host
+                if let pairingPortValue = result.pairingPort {
+                    pairingPort = String(pairingPortValue)
+                } else {
+                    pairingPort = ""
+                }
+                if let connectPortValue = result.connectPort {
+                    connectPort = String(connectPortValue)
+                }
+
+                if result.pairingPort == nil {
+                    validationMessage = model.wirelessDiscoveryMessage
+                } else {
+                    validationMessage = nil
+                    discoveryInfo = model.wirelessDiscoveryMessage
+                }
+            } else {
+                validationMessage = model.wirelessDiscoveryMessage
+                    ?? "No wireless debugging service was found."
+            }
+        }
+    }
+
     private func submit() {
+        guard !model.isDiscoveringWireless else { return }
         validationMessage = nil
         let trimmedHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
 

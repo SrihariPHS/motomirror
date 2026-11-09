@@ -115,6 +115,12 @@ public actor ADBClient: ADBServicing {
         )
     }
 
+    public func mdnsServices() async throws -> [ADBMDNSService] {
+        let output = try await run(["mdns", "services"], timeout: 15)
+        try output.requireSuccess(executableName)
+        return ADBMDNSParser.parse(output.stdout)
+    }
+
     public func connect(host: String, port: Int) async throws -> String {
         let address = try WirelessAddress(host: host, port: port)
         let output = try await run(["connect", address.hostPort])
