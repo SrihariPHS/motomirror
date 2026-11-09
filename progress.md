@@ -19,7 +19,7 @@
 - App bundle built, ad-hoc signed, and installed at ~/Applications/MotoMirror.app.
 - Physical Moto G85 gate: not run. The phone is not connected or nearby. This is the only open item.
 
-- Final gate run `20261109-171442`: 100/100, 0 failed, 0 skipped, 102 unit tests, 124 video frames, Opus audio. Report and artifact hashes match disk.
+- Final locked gate run `20261109-172038`: 100/100, 0 failed, 0 skipped, 102 unit tests, Opus audio, 18/18 artifact hashes match disk.
 - Critic fixes: zero-failure gate, real R01/R06/U07/DOC02 checks, no screen-size fallback, D10 arithmetic, waited-serial caching, W01 already-in-TCP proof, 10-attempt reconnect budget, SIGTERM cleanup.
 - Physical target check `--target moto` was run against the emulator to prove it rejects a non-Moto: 58/100, D01-D16/M/W all failed because the emulator is not a Moto. The 100/100 emulator report was preserved.
 
