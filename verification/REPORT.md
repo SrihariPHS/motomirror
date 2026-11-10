@@ -1,8 +1,8 @@
 # MotoMirror Verification Report
 
-- Run ID: 20261111-062810
-- Started: 2026-11-11T06:28:10+11:00
-- Finished: 2026-11-11T06:29:48+11:00
+- Run ID: 20261111-064202
+- Started: 2026-11-11T06:42:02+11:00
+- Finished: 2026-11-11T06:43:40+11:00
 - Mode: live
 - Target: any
 - Device: emulator-5554 — sdk_gphone64_arm64 (Android 15, SDK 35, unknown)
@@ -135,21 +135,21 @@ None.
 
 ## Artifacts
 
-- `artifacts/app-demo-connected.png` (558739 bytes, SHA256 `f998ba5e47e693b0e3b8a5cd82ebd519d73d10fae7a07bde42a22054efd6945d`)
+- `artifacts/app-demo-connected.png` (558637 bytes, SHA256 `8a97108357f876c58ab3b799aa694a31681c0d4f20bcab2023bf4c43b43e3304`)
 - `artifacts/app-demo-empty.png` (559687 bytes, SHA256 `5e9c2042b348f93ab9b3d3d2040f0264604f855a1ca12dfcfd15ae8457540036`)
 - `artifacts/app-demo-setup.png` (522750 bytes, SHA256 `829be09cbcb4e21a970642fdccd76da2a64874379323b324e9c0083c0c0e4c70`)
 - `artifacts/app-demo-unauthorized.png` (507715 bytes, SHA256 `54c1ed3a2642bc8308341c30797c06b27d0b289ad43506b0842cdf08d1b3d019`)
-- `artifacts/app-snapshot.png` (558611 bytes, SHA256 `cee40c7ab64d69d791f461e1833c6a0f58019e82a376de7c3ea2b9cf56269c78`)
-- `artifacts/mirror.mp4` (2068754 bytes, SHA256 `f6bb3833b223f038abc9a564eb91c73de730b18c70716cbcc953f289aa58686c`)
-- `artifacts/mirror2.mp4` (2237479 bytes, SHA256 `56f63358e45d5ab0b2aceab68dc87dc1f6151664ad9be7a412e0606fcdde793d`)
-- `artifacts/mirror2_session.log` (1835 bytes, SHA256 `6cba27406357aa02a63dd0088e9412558e301bcc7f0ac145a81c77a332bf73a4`)
-- `artifacts/mirror_limits.mp4` (478678 bytes, SHA256 `0d2f3878594bb36e45c7b395f5556dc3b2f76195f8b2efda655ca4ea9e439712`)
-- `artifacts/mirror_limits_session.log` (1907 bytes, SHA256 `6548f75dd3df536e9305fe7b49037033ccae29b4dff8ec4db3a1d642de8f0b72`)
-- `artifacts/mirror_no_audio.mp4` (2192180 bytes, SHA256 `4bd1dad9500373bfb7971f514646d3fe1c5114f5be4ea52c7b3e29b572591481`)
-- `artifacts/mirror_no_audio_session.log` (1800 bytes, SHA256 `6d324fec60ce961b2340b41993d3747aa642080fc9cd248757561677a767a79a`)
-- `artifacts/mirror_session.log` (1828 bytes, SHA256 `6b31f27354d64522f2753c18dea627a060fa3b7f04339bd18e668d1e13902d85`)
-- `artifacts/screenshot.png` (185962 bytes, SHA256 `be8b42312783c3c24518ff2645ce39fde2012461a7e188a1ce5c1aaf6e60c459`)
-- `artifacts/unit-tests-20261111-062810.log` (34202 bytes, SHA256 `220f1fd90ae26f32f6cab7849bc71ec88746d597141d5b65dd48a58ca44c87a2`)
-- `artifacts/wireless.mp4` (1943642 bytes, SHA256 `12110a0254641fdc61896df13cef72c2cce6a8b77e0e1fea166fd4ea256e1467`)
-- `artifacts/wireless.png` (148827 bytes, SHA256 `c41afe808d9485f2392ab4b239babc167186a0a87a4db37bf385df0718968133`)
-- `artifacts/wireless_session.log` (2009 bytes, SHA256 `45cbd75580687cee34ccf046cdee3aa2b8517294242b3c31e50707f7361df034`)
+- `artifacts/app-snapshot.png` (558594 bytes, SHA256 `badb86bf63e9d4165a28a7dbdd806f453dfff44c9818b0f4048c0a55c960b938`)
+- `artifacts/mirror.mp4` (874186 bytes, SHA256 `9bd34ab638fe08a06128058f5a9c4055fe52f9aa0c986c25000ed68ab1283e49`)
+- `artifacts/mirror2.mp4` (1224210 bytes, SHA256 `7aab1e1085bca5a83f7fba72d79cd30b6038acc22ea71a943ab787b794486331`)
+- `artifacts/mirror2_session.log` (1833 bytes, SHA256 `63637457482c4c109743ac9b437e251403a0c0e9ddd2c8fcd1f1485e30fec360`)
+- `artifacts/mirror_limits.mp4` (389262 bytes, SHA256 `e1381ffe88c154bfafd671805b2ff5c72cea633efc8abeb49e830b0a081e89c3`)
+- `artifacts/mirror_limits_session.log` (1903 bytes, SHA256 `6a9df27dcc53a8c28b0410b14ebaf883e022260d8ac320d7237f05580e6139e5`)
+- `artifacts/mirror_no_audio.mp4` (654725 bytes, SHA256 `129426b6e5b0f46fb3e50be1751ff0c3b4068315ded7a90dec7948d9b68c5119`)
+- `artifacts/mirror_no_audio_session.log` (1794 bytes, SHA256 `4b85ae7210a7cddaebc321b9aeb4828a831a0ccf8e740cf96aec886e3dcf2f84`)
+- `artifacts/mirror_session.log` (1824 bytes, SHA256 `ed28e34597942d85ecf4339a7b9810b291777d6614347cf09cd11459d8fe07f9`)
+- `artifacts/screenshot.png` (181292 bytes, SHA256 `5bd1700515a156f68f0f661aeade9dc23eb3ba59c2dd478593bbcba66663f597`)
+- `artifacts/unit-tests-20261111-064202.log` (34202 bytes, SHA256 `de77bb3512fe49ca818c66be1ae53a3421ecf336d73f0c3e6163eaffaff6be16`)
+- `artifacts/wireless.mp4` (1182485 bytes, SHA256 `175a74907adb173a514882b85409d424831e47a645b14c266d9ffd37a3c4f609`)
+- `artifacts/wireless.png` (1380357 bytes, SHA256 `5ab463c20306f4c2fbcf5c3f2a242ed5539844dd4349b6d2e35fc8585638675c`)
+- `artifacts/wireless_session.log` (2007 bytes, SHA256 `748ccdb0013cd811880979e3a9764a5838f23f0aef303dca9f95367f751aabf5`)

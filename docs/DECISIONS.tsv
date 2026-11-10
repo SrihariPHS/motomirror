@@ -29,3 +29,4 @@ ts	phase	decision	why	evidence	result
 2026-11-10T19:30:54Z	agent	Added a device-action layer, 27-tool MCP server, and agent CLI	Agents need to drive apps and UI without a human clicking the Mac app	verify/agent_features.py 21/21; agent tools --json 27 tools	PASS
 2026-11-10T19:30:54Z	agent	Added USB-only mode with a clear no-cable failure	Cable-only agents should not need wireless debugging or pairing	motomirrorctl --usb apps list rejects the emulator; app toggle filters to USB	PASS
 2026-11-10T19:30:54Z	verify	Locked gate run 20261111-062810 at 100/100 with 148 tests	The agent features and UI changes needed a full regression run	verification/report.json; 18/18 hashes	PASS
+2026-11-10T19:43:52Z	agent	Expanded the live agent suite to 24 checks after the first pass exposed Settings-task flakiness	The checks must be repeatable, not pass once by luck	three consecutive 24/24 runs; gate run 20261111-064229 100/100	PASS

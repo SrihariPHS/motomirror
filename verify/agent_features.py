@@ -58,7 +58,7 @@ def current_package():
 
 
 def ensure_settings_home():
-    for _ in range(5):
+    for _ in range(6):
         for pkg in ("com.parakey.keyboard", "com.google.android.settings.intelligence",
                     "com.android.settings"):
             adb("shell", "am", "force-stop", pkg)
@@ -66,7 +66,10 @@ def ensure_settings_home():
         adb("shell", "am", "start", "-W", "-S", "-n", "com.android.settings/.Settings")
         time.sleep(2)
         if current_package() == "com.android.settings":
-            return True
+            # The search page can remain in the task; HOME then Settings resets it.
+            text = cli("ui", "dump", "--json")
+            if "Search settings" in text.stdout:
+                return True
         adb("shell", "input", "keyevent", "KEYCODE_BACK")
         time.sleep(1)
     return False
@@ -111,6 +114,8 @@ def main():
 
     # 7-12 UI
     settings_ready = ensure_settings_home()
+    if not settings_ready:
+        raise SystemExit("Settings did not reach the home screen")
     dump = cli("ui", "dump", "--json")
     try:
         elements = json.loads(dump.stdout).get("elements", [])
@@ -205,14 +210,56 @@ def main():
     mcp_ok, mcp_evidence = mcp_check()
     record("A19", "MCP initialize/tools/list/tools/call", mcp_ok, mcp_evidence)
 
+    adb("shell", "input", "keyevent", "KEYCODE_WAKEUP")
+    adb("shell", "wm", "dismiss-keyguard")
     opened = cli("open", "https://example.com")
-    time.sleep(2)
-    current_after_open = cli("apps", "current", "--json")
-    record("A21", "open URL launches a handler", opened.returncode == 0 and "package" in current_after_open.stdout, opened.stdout + current_after_open.stdout[:300])
+    current_after_open = None
+    for _ in range(5):
+        time.sleep(1)
+        current_after_open = cli("apps", "current", "--json")
+        try:
+            if json.loads(current_after_open.stdout).get("package"):
+                break
+        except Exception:
+            pass
+    try:
+        open_pkg = json.loads(current_after_open.stdout).get("package") if current_after_open else None
+    except Exception:
+        open_pkg = None
+    record("A21", "open URL launches a handler", opened.returncode == 0 and bool(open_pkg), opened.stdout + (current_after_open.stdout[:300] if current_after_open else ""))
 
     usb = run([str(CLI), "--usb", "--serial", SERIAL, "apps", "list"])
     usb_ok = usb.returncode != 0 and "USB" in (usb.stdout + usb.stderr)
     record("A20", "USB-only guard rejects non-USB device", usb_ok, usb.stdout + usb.stderr)
+
+    reset_chrome()
+    stopped = cli("apps", "stop", "com.android.chrome")
+    time.sleep(1)
+    after_stop = cli("apps", "current", "--json")
+    try:
+        after_pkg = json.loads(after_stop.stdout).get("package")
+    except Exception:
+        after_pkg = None
+    record("A22", "apps stop", stopped.returncode == 0 and after_pkg != "com.android.chrome", stopped.stdout + after_stop.stdout)
+
+    vol_before = cli("volume", "get", "--json")
+    try:
+        level = json.loads(vol_before.stdout)["level"]
+    except Exception:
+        level = 8
+    vol_set = cli("volume", "set", str(level))
+    vol_after = cli("volume", "get", "--json")
+    try:
+        after_level = json.loads(vol_after.stdout)["level"]
+    except Exception:
+        after_level = None
+    record("A23", "volume set", vol_set.returncode == 0 and after_level == level, vol_set.stdout + vol_after.stdout)
+
+    sleep = cli("screen", "sleep")
+    time.sleep(1)
+    wake2 = cli("screen", "wake")
+    record("A24", "screen sleep and wake", sleep.returncode == 0 and wake2.returncode == 0, sleep.stdout + wake2.stdout)
+
 
     # restore emulator state; leave the other agent's keyboard as it was
     adb("shell", "ime", "set", PARAKEY_IME)
