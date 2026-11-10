@@ -314,7 +314,7 @@ are written under `verification/`.
 
 - Static gate: **58/58** checks.
 - Unit tests: **148 tests, 0 failures**.
-- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261111-064229`.
+- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261111-064202`.
 - Live mirror proof: H.264 video at 1080x2400 with 124 frames, plus Opus audio.
 - Wireless proof: connect, screenshot, mirror, and disconnect over
   `127.0.0.1:5555`.
