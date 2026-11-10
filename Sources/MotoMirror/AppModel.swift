@@ -267,6 +267,14 @@ final class AppModel: ObservableObject {
         case .connected:
             model.selectedSerial = DemoData.phoneSerial
             model.details = demoADB.previewDetails(for: DemoData.phoneSerial)
+            model.installedApps = [
+                InstalledApp(package: "com.android.settings"),
+                InstalledApp(package: "com.android.chrome"),
+                InstalledApp(package: "com.google.android.apps.photos"),
+                InstalledApp(package: "com.google.android.youtube"),
+                InstalledApp(package: "com.google.android.dialer"),
+                InstalledApp(package: "com.google.android.apps.messaging")
+            ]
         case .unauthorized:
             model.selectedSerial = DemoData.phoneSerial
             model.details = nil

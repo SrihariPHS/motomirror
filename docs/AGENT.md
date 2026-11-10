@@ -130,7 +130,7 @@ motomirrorctl --usb apps current
 | Installed apps | `apps list` | yes |
 | Foreground app | `apps current` | yes |
 | Launch app | `apps launch` | yes |
-| Stop app | `apps stop` | no (package exists) |
+| Stop app | `apps stop` | yes |
 | Install/uninstall APK | `apps install`, `apps uninstall` | no |
 | Open URL/deep link | `open` | yes |
 | UI hierarchy | `ui dump` | yes |
@@ -143,7 +143,7 @@ motomirrorctl --usb apps current
 | Push/pull/list files | `files` | yes |
 | Shell | `shell` | yes |
 | Wake/sleep/rotate | `screen` | yes |
-| Media volume | `volume` | yes |
+| Media volume get/set | `volume` | yes |
 | Logcat | `logcat` | yes |
 | Wait for app/device | `wait-for` | yes |
 | Tool schemas | `agent tools` | yes |
@@ -172,4 +172,4 @@ python3 verify/agent_features.py
 ```
 
 It writes `verification/AGENT-FEATURES.md` and `verification/agent-features.json`.
-The suite covers 21 checks and never selects the Moto G85.
+The suite covers 24 checks and never selects the Moto G85.
