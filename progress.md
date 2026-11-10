@@ -55,3 +55,6 @@ Next: connect the Moto G85 with USB debugging enabled and the RSA prompt allowed
 - Full gate run 20261111-062810: 100/100, 0 failed, 0 skipped, 148 unit tests, 18/18 artifact hashes.
 - Agent suite expanded to 24/24: added apps stop, volume set, screen sleep/wake, and a retry-hardened Settings navigation path. Three consecutive runs passed.
 - Final gate run 20261111-064202: 100/100, 0 failed, 0 skipped, 148 tests, 18/18 hashes.
+- Emulator shared with Parakey v1.0.2 and v1.0.3 gates; MotoMirror paused both times, then reran cleanly after release.
+- Hardened run_mirror to retry an empty emulator recording once after a settle, with a fresh file.
+- Final gate run 20261111-090535: 100/100, 0 failed, 0 skipped, 148 tests, 18/18 hashes. Agent suite 24/24.

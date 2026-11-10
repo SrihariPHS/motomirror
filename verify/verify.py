@@ -1709,11 +1709,30 @@ class Harness:
             timeout=20,
         )
         time.sleep(2.0)
-        stop, motion = self.start_motion(motion_seconds, serial=serial)
+        record_path = None
+        for index, arg in enumerate(arguments):
+            if arg == "--record" and index + 1 < len(arguments):
+                record_path = Path(arguments[index + 1])
+        # The emulator's video encoder occasionally returns an empty MP4 when
+        # another scrcpy server is still releasing. Retry once with a fresh
+        # file after a short settle, rather than failing a product check.
+        result = None
+        stop, motion = self.start_motion(motion_seconds * 2, serial=serial)
         try:
-            result = self.run_cli(
-                ["mirror", "--serial", serial] + arguments, timeout=timeout
-            )
+            for attempt in range(2):
+                if record_path and record_path.exists():
+                    try:
+                        record_path.unlink()
+                    except OSError:
+                        pass
+                result = self.run_cli(
+                    ["mirror", "--serial", serial] + arguments, timeout=timeout
+                )
+                size = record_path.stat().st_size if record_path and record_path.exists() else 0
+                if result.ok and (record_path is None or size > 0):
+                    break
+                if attempt == 0:
+                    time.sleep(3.0)
         finally:
             stop.set()
             motion.join(timeout=5)

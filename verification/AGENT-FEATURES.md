@@ -14,12 +14,12 @@
 | A07 | ui text types into Settings search | pass | `tap=tapped Search settings at 376,659 texts=['', '', '', '', '', '', '', '']` |
 | A08 | ui key sends a keyevent | pass | `sent KEYCODE_BACK ` |
 | A09 | ui swipe | pass | `swiped ` |
-| A10 | screenshot writes a PNG | pass | `/Users/srihari/workspace/motomirror/verification/agent-features-screenshot.png (52826 bytes)  bytes=52826` |
+| A10 | screenshot writes a PNG | pass | `/Users/srihari/workspace/motomirror/verification/agent-features-screenshot.png (52850 bytes)  bytes=52850` |
 | A11 | files push/ls/pull | pass | ` [   "agent-test.txt",   "motomirror-agent-feature.txt" ]  ` |
 | A12 | shell echo | pass | `exit=0 motomirror-agent  ` |
 | A13 | screen wake and rotate | pass | `screen wake screen rotate ` |
 | A14 | volume get | pass | `{   "level" : 15,   "max" : 15 } ` |
-| A15 | logcat returns text | pass | `--------- beginning of main 11-11 06:59:57.794  1643  3463 I MediaProvider: Deleted 0 0 0 0 0 0 1 items on external_primary due to com.android.shell 11-11 06:59` |
+| A15 | logcat returns text | pass | `--------- beginning of main 11-11 09:08:18.087  1310  1310 D SsBaseTemplateCard: Passed-in item info is null 11-11 09:08:18.087  1310  1310 I SsBaseTemplateCard` |
 | A16 | wait-for app | pass | `app com.android.settings is foreground ` |
 | A17 | agent tools lists 20+ tools | pass | `tools=27` |
 | A18 | agent call apps_list | pass | `{   "isError" : false,   "text" : "[\n  {\n    \"package\" : \"com.android.companiondevicemanager.auto_generated_characteristics_rro\"\n  },\n  {\n    \"package` |
