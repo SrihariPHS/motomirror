@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup build test app run verify verify-live verify-loop install clean
+.PHONY: setup build test app run verify verify-live verify-loop agent-test install install-cli clean
 
 setup:
 	./scripts/setup.sh
@@ -26,8 +26,16 @@ verify-live:
 verify-loop:
 	./scripts/verify-loop.sh 0 600
 
+agent-test:
+	python3 verify/agent_features.py
+
 install:
 	./scripts/install.sh
+
+install-cli: build
+	mkdir -p $$HOME/.local/bin
+	cp .build/debug/motomirrorctl $$HOME/.local/bin/motomirrorctl
+	chmod +x $$HOME/.local/bin/motomirrorctl
 
 clean:
 	rm -rf .build dist

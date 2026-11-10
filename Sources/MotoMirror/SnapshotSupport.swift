@@ -11,6 +11,7 @@ enum SnapshotSupport {
 
         var path: String?
         var scenario = DemoScenario.connected
+        var agentPanel = false
         var index = 0
 
         while index < arguments.count {
@@ -25,6 +26,11 @@ enum SnapshotSupport {
             }
             if argument.hasPrefix("--snapshot=") {
                 path = String(argument.dropFirst("--snapshot=".count))
+                index += 1
+                continue
+            }
+            if argument == "--snapshot-agent" {
+                agentPanel = true
                 index += 1
                 continue
             }
@@ -58,15 +64,21 @@ enum SnapshotSupport {
 
         _ = NSApplication.shared
         NSApplication.shared.setActivationPolicy(.prohibited)
-        render(scenario: scenario, to: path)
+        render(scenario: scenario, to: path, agentPanel: agentPanel)
         return true
     }
 
-    static func render(scenario: DemoScenario, to path: String) {
+    static func render(scenario: DemoScenario, to path: String, agentPanel: Bool = false) {
         let model = AppModel.demo(scenario: scenario)
         let width: CGFloat = 1280
         let height: CGFloat = 820
-        let root = SnapshotRootView(model: model)
+        let root = Group {
+            if agentPanel {
+                AgentPanelView(model: model)
+            } else {
+                SnapshotRootView(model: model)
+            }
+        }
             .environment(\.mmSnapshotLayout, true)
             .frame(width: width, height: height)
             .environment(\.colorScheme, .light)

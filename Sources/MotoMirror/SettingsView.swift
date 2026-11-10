@@ -154,6 +154,22 @@ struct SettingsView: View {
 
                 OptionsView(model: model, showsHeader: false)
                     .mmCard(padding: 16)
+                SettingsSection(
+                    title: "USB only",
+                    subtitle: "No wireless debugging or pairing",
+                    icon: "cable.connector"
+                ) {
+                    Toggle("Use USB devices only", isOn: Binding(
+                        get: { model.usbOnly },
+                        set: { model.usbOnly = $0; model.refreshNow() }
+                    ))
+                    .toggleStyle(.switch)
+                    Text("When on, MotoMirror hides wireless devices and skips mDNS recovery. Connect a USB data cable and authorize USB debugging once.")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
 
                 Text("Changing options while mirroring is disabled. Stop the session to unlock them.")
                     .font(.system(size: 10))

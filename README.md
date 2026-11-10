@@ -219,6 +219,28 @@ Full setup details: [docs/SETUP-MOTO-G85.md](docs/SETUP-MOTO-G85.md#7-tailscale-
 - `motomirrorctl` command line tool.
 - Demo mode with sample devices for UI review without a phone.
 
+## Agent control
+
+Agents can drive the phone from the CLI or MCP. The full reference is in
+[docs/AGENT.md](docs/AGENT.md).
+
+```bash
+motomirrorctl apps launch com.android.settings
+motomirrorctl ui find --text "Search settings" --json
+motomirrorctl ui tap --text "Search settings"
+motomirrorctl ui text "battery"
+motomirrorctl screenshot --out /tmp/phone.png
+motomirrorctl mcp
+```
+
+`motomirrorctl mcp` is a stdio MCP server with 27 tools. The Mac app has an
+**Agent** panel for the same actions.
+
+For cable-only agents, add `--usb` or set `MOTOMIRROR_TRANSPORT=usb`. This
+requires no wireless debugging and no pairing.
+
+![Agent panel](docs/agent-panel.png)
+
 ## Mirror presets
 
 Open **Mirror options** and pick a preset. The preset fills resolution, bitrate,
@@ -291,8 +313,8 @@ are written under `verification/`.
 ### Current verification status
 
 - Static gate: **58/58** checks.
-- Unit tests: **143 tests, 0 failures**.
-- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261109-202617`.
+- Unit tests: **148 tests, 0 failures**.
+- Live gate on Android 15 (Google APIs emulator, 1080x2400): **100/100**, run `20261111-062810`.
 - Live mirror proof: H.264 video at 1080x2400 with 124 frames, plus Opus audio.
 - Wireless proof: connect, screenshot, mirror, and disconnect over
   `127.0.0.1:5555`.
@@ -307,6 +329,7 @@ are written under `verification/`.
   [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
 - Tailscale peer discovery: documented, not live-proven on the Moto G85. The
   phone had no online Tailscale node during testing.
+- Agent feature suite: **21/21** live checks on the emulator, 27 MCP tools.
 - Physical Moto G85 gate: pending the phone. Run `make verify-live` with the
   phone connected and USB debugging authorized.
 

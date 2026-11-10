@@ -35,3 +35,10 @@ Definition of done: `./scripts/verify.sh --live` produces at least 99/100 with z
 | --- | --- | --- | --- |
 | R21 | Presets and faster details | `MirrorPreset` exposes quality/balanced/batterySaver options and a nil-options custom case; `ScrcpyOptions.default` is balanced; `DeviceListNormalizer` collapses mDNS + IP aliases for one phone; `ADBClient.details` uses one marked adb shell round trip instead of four and keeps partial results when a section fails; unit tests cover each behavior | done (app preset picker and migration verified; 143 tests) |
 | R22 | Tailscale peer discovery | `TailscaleDiscovery` locates the CLI, parses `tailscale status --json` `Peer` entries, filters/sorts Android peers, validates `100.64.0.0/10` addresses, and runs `status --json` with a 15s timeout; read-only and unit tested | done (`swift test` 143/143; 11 Tailscale tests) |
+
+## 2026-11-11 agent control
+
+| ID | Requirement | Acceptance criteria | Status |
+| --- | --- | --- | --- |
+| R23 | Agent CLI and MCP | `apps`, `ui`, `files`, `shell`, `screen`, `volume`, `logcat`, `wait-for`, `open`, `agent tools/call`, and `mcp` are implemented; 27 MCP tools; live emulator suite passes 21/21 | done |
+| R24 | USB-only mode | `--usb` and `MOTOMIRROR_TRANSPORT=usb` filter to USB and fail clearly with no cable; app toggle hides wireless and skips mDNS recovery | done |

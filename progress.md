@@ -49,3 +49,7 @@ Next: connect the Moto G85 with USB debugging enabled and the RSA prompt allowed
 - App integration: `--preset battery-saver` produced `--max-size=720 --video-bit-rate=4M --max-fps=30 --no-audio --turn-screen-off`; `--preset balanced` produced `--max-size=1440 --video-bit-rate=8M --max-fps=60` with audio.
 - Tailscale: read-only `TailscaleDiscovery` and `motomirrorctl tailscale peers` are implemented and tested. The Mac lists 4 Android peers, all offline; no Moto tailnet node, so Tailscale connectivity to the phone is documented but not live-proven.
 - Final gate run 20261109-202617: 100/100, 0 failed, 0 skipped, 143 tests, 18/18 artifact hashes match.
+- Agent control: added DeviceActions, UI hierarchy parsing, app launch/stop, UI find/tap/text/key/swipe, files push/pull, shell, screen, volume, logcat, wait-for, agent tools/call, and a 27-tool MCP stdio server.
+- USB-only mode: `--usb` and `MOTOMIRROR_TRANSPORT=usb` require a cable and fail clearly without one; app has a USB-only toggle.
+- Agent suite: 21/21 live checks on the emulator, including MCP initialize/tools/list/tools/call and a real UI typing test. Moto G85 untouched.
+- Full gate run 20261111-062810: 100/100, 0 failed, 0 skipped, 148 unit tests, 18/18 artifact hashes.

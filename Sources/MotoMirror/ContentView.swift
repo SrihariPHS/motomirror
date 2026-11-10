@@ -23,6 +23,9 @@ struct ContentView: View {
             SetupView(model: model, presentedAsSheet: true)
                 .frame(minWidth: 640, minHeight: 640)
         }
+        .sheet(isPresented: $model.isShowingAgentPanel) {
+            AgentPanelView(model: model)
+        }
     }
 }
 
@@ -207,20 +210,36 @@ struct SidebarView: View {
 
             HStack(spacing: 6) {
                 Button {
-                    model.isShowingWirelessSheet = true
+                    model.isShowingAgentPanel = true
                 } label: {
-                    Label("Wireless", systemImage: "wifi")
+                    Label("Agent", systemImage: "terminal")
                 }
                 .buttonStyle(MMQuietButtonStyle())
+                .help("Apps, UI automation, files, and MCP")
+
+                if !model.usbOnly {
+                    Button {
+                        model.isShowingWirelessSheet = true
+                    } label: {
+                        Label("Wireless", systemImage: "wifi")
+                    }
+                    .buttonStyle(MMQuietButtonStyle())
+                }
 
                 Spacer()
 
                 Button {
                     model.isShowingSetup = true
                 } label: {
-                    Label("Setup & Help", systemImage: "questionmark.circle")
+                    Label("Help", systemImage: "questionmark.circle")
                 }
                 .buttonStyle(MMQuietButtonStyle())
+            }
+            if model.usbOnly {
+                Text("USB only · no wireless debugging")
+                    .font(.system(size: 9.5, weight: .medium))
+                    .foregroundStyle(MMTheme.teal)
+                    .padding(.horizontal, 4)
             }
         }
         .padding(.horizontal, 12)

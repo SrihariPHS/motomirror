@@ -13,6 +13,7 @@ enum MMDefaults {
     static let wirelessEndpoint = "MotoMirror.wirelessEndpoint"
     static let wirelessSerial = "MotoMirror.wirelessSerial"
     static let preset = "MotoMirror.preset"
+    static let usbOnly = "MotoMirror.usbOnly"
 }
 
 // MARK: - Log entries
@@ -30,6 +31,16 @@ struct AppLogEntry: Identifiable, Equatable {
     let level: AppLogLevel
     let source: String
     let message: String
+}
+
+// MARK: - Agent actions
+
+enum AgentAction {
+    case dumpUI
+    case wake
+    case typeText(String)
+    case launch(String)
+    case stop(String)
 }
 
 // MARK: - Model
@@ -69,6 +80,18 @@ final class AppModel: ObservableObject {
     @Published private(set) var isDiscoveringTailscale = false
     @Published private(set) var tailscaleMessage: String?
 
+    // Agent
+    @Published private(set) var installedApps: [InstalledApp] = []
+    @Published private(set) var isLoadingApps = false
+    @Published private(set) var agentMessage: String?
+    @Published var isShowingAgentPanel = false
+    @Published var usbOnly: Bool {
+        didSet {
+            guard !isDemoMode else { return }
+            UserDefaults.standard.set(usbOnly, forKey: MMDefaults.usbOnly)
+        }
+    }
+
     // Tools
     @Published private(set) var toolchain: Toolchain?
     @Published private(set) var toolVersionSummary: String?
@@ -89,6 +112,7 @@ final class AppModel: ObservableObject {
     // Dependencies
     private var adb: any ADBServicing
     private var scrcpy: any ScrcpyControlling
+    private var deviceActions: DeviceActions?
     let isDemoMode: Bool
     private let policy = ReconnectPolicy()
 
@@ -133,6 +157,7 @@ final class AppModel: ObservableObject {
         self.isDemoMode = demoMode
 
         let defaults = UserDefaults.standard
+        self.usbOnly = demoMode ? false : defaults.bool(forKey: MMDefaults.usbOnly)
         let storedPreset = defaults
             .string(forKey: MMDefaults.preset)
             .flatMap(MirrorPreset.init(rawValue:))
@@ -189,7 +214,7 @@ final class AppModel: ObservableObject {
 
         if let toolchain {
             let runner = ProcessRunner()
-            return AppModel(
+            let model = AppModel(
                 adb: ADBClient(adbURL: toolchain.adb, runner: runner),
                 scrcpy: ScrcpyController(
                     scrcpyURL: toolchain.scrcpy,
@@ -200,6 +225,8 @@ final class AppModel: ObservableObject {
                 demoMode: false,
                 recordingFolder: recordingFolder
             )
+            model.deviceActions = DeviceActions(adbURL: toolchain.adb, runner: runner)
+            return model
         }
 
         return AppModel(
@@ -230,6 +257,9 @@ final class AppModel: ObservableObject {
         )
 
         model.devices = demoADB.previewDevices
+        if let toolchain {
+            model.deviceActions = DeviceActions(adbURL: toolchain.adb)
+        }
         model.toolVersionSummary = toolchain == nil ? nil : "adb 37.0.2 · scrcpy 5.0.1"
         model.lastRefresh = Date()
 
@@ -537,6 +567,8 @@ final class AppModel: ObservableObject {
         defaults.removeObject(forKey: MMDefaults.recordingFolder)
         defaults.removeObject(forKey: MMDefaults.wirelessEndpoint)
         defaults.removeObject(forKey: MMDefaults.wirelessSerial)
+        defaults.removeObject(forKey: MMDefaults.usbOnly)
+        usbOnly = false
 
         let balancedOptions = MirrorPreset.balanced.options ?? .default
         isApplyingPreset = true
@@ -574,6 +606,7 @@ final class AppModel: ObservableObject {
             var found = try await adb.devices()
 
             if found.isEmpty,
+               !usbOnly,
                hasWirelessRecoveryHint,
                shouldAttemptBackgroundWirelessRecovery {
                 lastWirelessConnectAttempt = Date()
@@ -594,6 +627,9 @@ final class AppModel: ObservableObject {
                 }
             }
 
+            if usbOnly {
+                found = found.filter { $0.transport == .usb }
+            }
             let normalized = DeviceListNormalizer.normalize(found)
             updateWirelessEndpointCache(raw: found, normalized: normalized)
             let sorted = normalized.sorted { lhs, rhs in
@@ -1214,6 +1250,66 @@ final class AppModel: ObservableObject {
                 level: .warning
             )
             return false
+        }
+    }
+
+    // MARK: - Agent tools
+
+    func loadInstalledApps(includeSystem: Bool) async {
+        guard let serial = selectedDevice?.serial, let actions = deviceActions else {
+            agentMessage = "Select a phone first."
+            installedApps = []
+            return
+        }
+        isLoadingApps = true
+        defer { isLoadingApps = false }
+        do {
+            installedApps = try await actions.packages(serial: serial, includeSystem: includeSystem)
+            agentMessage = "\(installedApps.count) packages"
+        } catch {
+            installedApps = []
+            agentMessage = Self.friendlyMessage(for: error)
+        }
+    }
+
+    func runAgentAction(_ action: AgentAction) async {
+        guard let serial = selectedDevice?.serial, let actions = deviceActions else {
+            agentMessage = "Select a phone first."
+            return
+        }
+        do {
+            switch action {
+            case .dumpUI:
+                let hierarchy = try await actions.hierarchy(serial: serial)
+                agentMessage = "UI hierarchy: \(hierarchy.elements.count) elements"
+            case .wake:
+                try await actions.wake(serial: serial)
+                agentMessage = "Screen awake"
+            case .typeText(let text):
+                try await actions.inputText(serial: serial, text: text)
+                agentMessage = "Typed text"
+            case .launch(let package):
+                _ = try await actions.launchApp(serial: serial, package: package)
+                agentMessage = "Launched \(package)"
+            case .stop(let package):
+                try await actions.stopApp(serial: serial, package: package)
+                agentMessage = "Stopped \(package)"
+            }
+        } catch {
+            agentMessage = Self.friendlyMessage(for: error)
+        }
+    }
+
+    func loadLogcat(lines: Int) async -> [String] {
+        guard let serial = selectedDevice?.serial, let actions = deviceActions else {
+            return []
+        }
+        do {
+            let output = try await actions.logcat(serial: serial, lines: lines)
+            return output.split(whereSeparator: \.isNewline).map(String.init)
+        } catch {
+            agentMessage = Self.friendlyMessage(for: error)
+            return []
         }
     }
 

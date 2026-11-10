@@ -1,7 +1,7 @@
 import Foundation
 
-public struct AndroidDevice: Identifiable, Equatable, Sendable {
-    public enum State: String, Sendable {
+public struct AndroidDevice: Identifiable, Equatable, Sendable, Codable {
+    public enum State: String, Sendable, Codable {
         case device
         case offline
         case unauthorized
@@ -10,7 +10,7 @@ public struct AndroidDevice: Identifiable, Equatable, Sendable {
         case unknown
     }
 
-    public enum Transport: String, Sendable {
+    public enum Transport: String, Sendable, Codable {
         case usb
         case wireless
         case unknown
@@ -50,7 +50,7 @@ public struct AndroidDevice: Identifiable, Equatable, Sendable {
     }
 }
 
-public struct BatteryInfo: Equatable, Sendable {
+public struct BatteryInfo: Equatable, Sendable, Codable {
     public var level: Int?
     public var status: String?
     public var temperatureCelsius: Double?
@@ -69,7 +69,7 @@ public struct BatteryInfo: Equatable, Sendable {
     }
 }
 
-public struct StorageInfo: Equatable, Sendable {
+public struct StorageInfo: Equatable, Sendable, Codable {
     public var totalBytes: Int64
     public var availableBytes: Int64
 
@@ -85,7 +85,7 @@ public struct StorageInfo: Equatable, Sendable {
     }
 }
 
-public struct ScreenInfo: Equatable, Sendable {
+public struct ScreenInfo: Equatable, Sendable, Codable {
     public var width: Int
     public var height: Int
     public var density: Int?
@@ -97,7 +97,7 @@ public struct ScreenInfo: Equatable, Sendable {
     }
 }
 
-public struct DeviceDetails: Equatable, Sendable {
+public struct DeviceDetails: Equatable, Sendable, Codable {
     public var serial: String
     public var manufacturer: String?
     public var model: String?
@@ -185,8 +185,8 @@ public struct ScrcpyOptions: Codable, Equatable, Sendable {
     public static let `default` = MirrorPreset.balanced.options!
 }
 
-public struct ScrcpyStatus: Equatable, Sendable {
-    public enum State: String, Sendable {
+public struct ScrcpyStatus: Equatable, Sendable, Codable {
+    public enum State: String, Sendable, Codable {
         case idle
         case starting
         case running

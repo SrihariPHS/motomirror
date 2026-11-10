@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "runId": "20261109-212157",
-  "startedAt": "2026-11-09T21:21:57+11:00",
-  "finishedAt": "2026-11-09T21:23:36+11:00",
-  "generatedAt": "2026-11-09T21:23:36+11:00",
+  "runId": "20261111-062810",
+  "startedAt": "2026-11-11T06:28:10+11:00",
+  "finishedAt": "2026-11-11T06:29:48+11:00",
+  "generatedAt": "2026-11-11T06:29:48+11:00",
   "mode": "live",
   "target": "any",
   "device": {
-    "serial": "127.0.0.1:5555",
+    "serial": "emulator-5554",
     "model": "sdk_gphone64_arm64",
     "manufacturer": "Google",
     "androidVersion": "15",
     "sdk": "35",
-    "transport": "wireless",
+    "transport": "unknown",
     "target": "any"
   },
   "score": {
@@ -81,7 +81,7 @@
       "status": "pass",
       "evidence": "$ /opt/homebrew/bin/ffmpeg -version\nexit=0\nffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers\nbuilt with Apple clang version 21.0.0 (clang-2100.3.34.2)\nconfiguration: --prefix=/opt/homebrew/Cellar/ffmpeg/9.0.2_1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gpl\n...[truncated]...\nle-videotoolbox --enable-audiotoolbox --enable-neon\nlibavutil      61.  1.102 / 61.  1.102\nlibavcodec     63.  1.102 / 63.  1.102\nlibavformat    63.  1.102 / 63.  1.102\nlibavdevice    63.  1.102 / 63.  1.102\nlibavfilter    12.  1.102 / 12.  1.102\nlibswscale     10.  1.102 / 10.  1.102\nlibswresample   7.  1.102 /  7.  1.102\n\nExiting with exit code 0",
       "weight": 1,
-      "seconds": 0.02
+      "seconds": 0.03
     },
     {
       "id": "E07",
@@ -108,7 +108,7 @@
       "status": "pass",
       "evidence": "start-server:\n$ /opt/homebrew/bin/adb start-server\nexit=0\ndevices:\n$ /opt/homebrew/bin/adb devices\nexit=0\nList of devices attached\nemulator-5554\tdevice",
       "weight": 1,
-      "seconds": 0.03
+      "seconds": 0.02
     },
     {
       "id": "E10",
@@ -124,9 +124,9 @@
       "category": "Build",
       "title": "swift build (debug) succeeds",
       "status": "pass",
-      "evidence": "$ /usr/bin/swift build\nexit=0\nBuilding for debugging...\n[1\u2009/\u200910]\nBuild complete! (0.37 sec.)",
+      "evidence": "$ /usr/bin/swift build\nexit=0\nBuilding for debugging...\n[1\u2009/\u200910]\nBuild complete! (0.34 sec.)",
       "weight": 1,
-      "seconds": 1.08
+      "seconds": 1.45
     },
     {
       "id": "B02",
@@ -135,7 +135,7 @@
       "status": "pass",
       "evidence": "path=/Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mode=0o755",
       "weight": 1,
-      "seconds": 0.44
+      "seconds": 0.53
     },
     {
       "id": "B03",
@@ -151,9 +151,9 @@
       "category": "Build",
       "title": "swift build -c release succeeds",
       "status": "pass",
-      "evidence": "$ /usr/bin/swift build -c release\nexit=0\nBuilding for production...\n[3\u2009/\u200911] MotoMirrorCore\n[5\u2009/\u200912] MotoMirrorCore\nBuild complete! (3.23 sec.)",
+      "evidence": "$ /usr/bin/swift build -c release\nexit=0\nBuilding for production...\n[2\u2009/\u200911] MotoMirrorCore\n[3\u2009/\u200911] MotoMirrorCore\n[5\u2009/\u200912] MotoMirrorCore\nBuild complete! (4.50 sec.)",
       "weight": 1,
-      "seconds": 3.92
+      "seconds": 5.07
     },
     {
       "id": "B05",
@@ -162,7 +162,7 @@
       "status": "pass",
       "evidence": "path=/Users/srihari/workspace/motomirror/.build/out/Products/Release/motomirrorctl mode=0o755",
       "weight": 1,
-      "seconds": 0.46
+      "seconds": 0.49
     },
     {
       "id": "B06",
@@ -232,16 +232,16 @@
       "category": "Unit tests",
       "title": "swift test exits zero",
       "status": "pass",
-      "evidence": "swift test exit=0 seconds=16.7\n$ /usr/bin/swift test\nexit=0\nTest Suite 'All tests' started at 2026-11-09 21:22:05.089.\nTest Suite 'MotoMirrorCoreTests.xctest' started at 2026-11-09 21:22:05.089.\nTest Suite 'ADBClientTests' started at 2026-11-09 21:22:05.089.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' passed (0.366 seconds).\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsConnectedToOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcc\n...[truncated]...\n0 unexpected) in 0.001 (0.002) seconds\nTest Suite 'MotoMirrorCoreTests.xctest' passed at 2026-11-09 21:22:20.404.\n\t Executed 143 tests, with 0 failures (0 unexpected) in 15.307 (15.315) seconds\nTest Suite 'All tests' passed at 2026-11-09 21:22:20.404.\n\t Executed 143 tests, with 0 failures (0 unexpected) in 15.307 (15.316) seconds\n\u25c7 Test run started.\n\u21b3 Testing Library Version: 2403\n\u21b3 Target Platform: arm64e-apple-macos14.0\n\u2714 Test run with 0 tests in 0 suites passed after 0.001 seconds.\nBuilding for debugging...\n[2\u2009/\u200919]\n[3\u2009/\u200920] MotoMirrorCore\n[5\u2009/\u200921] MotoMirrorCore\nBuild complete! (0.64 sec.)",
+      "evidence": "swift test exit=0 seconds=14.9\n$ /usr/bin/swift test\nexit=0\nTest Suite 'All tests' started at 2026-11-11 06:28:19.277.\nTest Suite 'MotoMirrorCoreTests.xctest' started at 2026-11-11 06:28:19.277.\nTest Suite 'ADBClientTests' started at 2026-11-11 06:28:19.277.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' passed (0.323 seconds).\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsConnectedToOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcc\n...[truncated]...\nailures (0 unexpected) in 0.002 (0.003) seconds\nTest Suite 'MotoMirrorCoreTests.xctest' passed at 2026-11-11 06:28:32.691.\n\t Executed 148 tests, with 0 failures (0 unexpected) in 13.402 (13.413) seconds\nTest Suite 'All tests' passed at 2026-11-11 06:28:32.691.\n\t Executed 148 tests, with 0 failures (0 unexpected) in 13.402 (13.414) seconds\n\u25c7 Test run started.\n\u21b3 Testing Library Version: 2403\n\u21b3 Target Platform: arm64e-apple-macos14.0\n\u2714 Test run with 0 tests in 0 suites passed after 0.001 seconds.\nBuilding for debugging...\n[3\u2009/\u200920] MotoMirrorCore\n[5\u2009/\u200921] MotoMirrorCore\nBuild complete! (0.64 sec.)",
       "weight": 1,
-      "seconds": 16.71
+      "seconds": 14.93
     },
     {
       "id": "U02",
       "category": "Unit tests",
       "title": "At least 20 tests execute",
       "status": "pass",
-      "evidence": "parsed test count=143 (requires >= 20)\nTest Suite 'All tests' started at 2026-11-09 21:22:05.089.\nTest Suite 'MotoMirrorCoreTests.xctest' started at 2026-11-09 21:22:05.089.\nTest Suite 'ADBClientTests' started at 2026-11-09 21:22:05.089.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' passed (0.366 seconds).\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsConnectedToOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsConnectedToOutput]' passe\n...[truncated]...\nunexpected) in 0.001 (0.002) seconds\nTest Suite 'MotoMirrorCoreTests.xctest' passed at 2026-11-09 21:22:20.404.\n\t Executed 143 tests, with 0 failures (0 unexpected) in 15.307 (15.315) seconds\nTest Suite 'All tests' passed at 2026-11-09 21:22:20.404.\n\t Executed 143 tests, with 0 failures (0 unexpected) in 15.307 (15.316) seconds\n\u25c7 Test run started.\n\u21b3 Testing Library Version: 2403\n\u21b3 Target Platform: arm64e-apple-macos14.0\n\u2714 Test run with 0 tests in 0 suites passed after 0.001 seconds.\n\nBuilding for debugging...\n[2\u2009/\u200919]\n[3\u2009/\u200920] MotoMirrorCore\n[5\u2009/\u200921] MotoMirrorCore\nBuild complete! (0.64 sec.)\n",
+      "evidence": "parsed test count=148 (requires >= 20)\nTest Suite 'All tests' started at 2026-11-11 06:28:19.277.\nTest Suite 'MotoMirrorCoreTests.xctest' started at 2026-11-11 06:28:19.277.\nTest Suite 'ADBClientTests' started at 2026-11-11 06:28:19.277.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsAlreadyConnectedOutput]' passed (0.323 seconds).\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsConnectedToOutput]' started.\nTest Case '-[MotoMirrorCoreTests.ADBClientTests testConnectAcceptsConnectedToOutput]' passe\n...[truncated]...\nlures (0 unexpected) in 0.002 (0.003) seconds\nTest Suite 'MotoMirrorCoreTests.xctest' passed at 2026-11-11 06:28:32.691.\n\t Executed 148 tests, with 0 failures (0 unexpected) in 13.402 (13.413) seconds\nTest Suite 'All tests' passed at 2026-11-11 06:28:32.691.\n\t Executed 148 tests, with 0 failures (0 unexpected) in 13.402 (13.414) seconds\n\u25c7 Test run started.\n\u21b3 Testing Library Version: 2403\n\u21b3 Target Platform: arm64e-apple-macos14.0\n\u2714 Test run with 0 tests in 0 suites passed after 0.001 seconds.\n\nBuilding for debugging...\n[3\u2009/\u200920] MotoMirrorCore\n[5\u2009/\u200921] MotoMirrorCore\nBuild complete! (0.64 sec.)\n",
       "weight": 1,
       "seconds": 0.0
     },
@@ -250,7 +250,7 @@
       "category": "Unit tests",
       "title": "Zero test failures",
       "status": "pass",
-      "evidence": "parsed failures=0 failed_cases=none log=/Users/srihari/workspace/motomirror/artifacts/unit-tests-20261109-212157.log",
+      "evidence": "parsed failures=0 failed_cases=none log=/Users/srihari/workspace/motomirror/artifacts/unit-tests-20261111-062810.log",
       "weight": 1,
       "seconds": 0.0
     },
@@ -268,7 +268,7 @@
       "category": "Unit tests",
       "title": "Parser tests are present",
       "status": "pass",
-      "evidence": "test files=10 matches=['Tests/MotoMirrorCoreTests/ADBParserTests.swift', 'Tests/MotoMirrorCoreTests/MDNSTests.swift']; output_mentions_parser=True",
+      "evidence": "test files=11 matches=['Tests/MotoMirrorCoreTests/ADBParserTests.swift', 'Tests/MotoMirrorCoreTests/AgentDeviceTests.swift', 'Tests/MotoMirrorCoreTests/MDNSTests.swift']; output_mentions_parser=True",
       "weight": 1,
       "seconds": 0.0
     },
@@ -277,7 +277,7 @@
       "category": "Unit tests",
       "title": "scrcpy command tests are present",
       "status": "pass",
-      "evidence": "test files=10 matches=['Tests/MotoMirrorCoreTests/PresetTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyCommandTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyControllerTests.swift']",
+      "evidence": "test files=11 matches=['Tests/MotoMirrorCoreTests/PresetTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyCommandTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyControllerTests.swift']",
       "weight": 1,
       "seconds": 0.0
     },
@@ -313,7 +313,7 @@
       "category": "Unit tests",
       "title": "At least three test source files exist",
       "status": "pass",
-      "evidence": "test source files=10: ['Tests/MotoMirrorCoreTests/ADBClientTests.swift', 'Tests/MotoMirrorCoreTests/ADBParserTests.swift', 'Tests/MotoMirrorCoreTests/DeviceListNormalizerTests.swift', 'Tests/MotoMirrorCoreTests/MDNSTests.swift', 'Tests/MotoMirrorCoreTests/PresetTests.swift', 'Tests/MotoMirrorCoreTests/ProcessRunnerTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyCommandTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyControllerTests.swift', 'Tests/MotoMirrorCoreTests/TailscaleDiscoveryTests.swift', 'Tests/MotoMirrorCoreTests/WirelessTests.swift']",
+      "evidence": "test source files=11: ['Tests/MotoMirrorCoreTests/ADBClientTests.swift', 'Tests/MotoMirrorCoreTests/ADBParserTests.swift', 'Tests/MotoMirrorCoreTests/AgentDeviceTests.swift', 'Tests/MotoMirrorCoreTests/DeviceListNormalizerTests.swift', 'Tests/MotoMirrorCoreTests/MDNSTests.swift', 'Tests/MotoMirrorCoreTests/PresetTests.swift', 'Tests/MotoMirrorCoreTests/ProcessRunnerTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyCommandTests.swift', 'Tests/MotoMirrorCoreTests/ScrcpyControllerTests.swift', 'Tests/MotoMirrorCoreTests/TailscaleDiscoveryTests.swift', 'Tests/MotoMirrorCoreTests/WirelessTests.swift']",
       "weight": 1,
       "seconds": 0.0
     },
@@ -322,7 +322,7 @@
       "category": "Unit tests",
       "title": "Test count is parsed from output",
       "status": "pass",
-      "evidence": "parsed test count=143 from swift test output",
+      "evidence": "parsed test count=148 from swift test output",
       "weight": 1,
       "seconds": 0.0
     },
@@ -331,7 +331,7 @@
       "category": "Unit tests",
       "title": "Test run completes inside its timeout",
       "status": "pass",
-      "evidence": "swift test completed in 16.7s (timeout 600s)",
+      "evidence": "swift test completed in 14.9s (timeout 600s)",
       "weight": 1,
       "seconds": 0.0
     },
@@ -340,7 +340,7 @@
       "category": "App/UI",
       "title": "App --snapshot exits zero",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/dist/MotoMirror.app/Contents/MacOS/MotoMirror --snapshot /Users/srihari/workspace/motomirror/artifacts/app-snapshot.png\nexit=0\nMotoMirror snapshot: connected \u2192 /Users/srihari/workspace/motomirror/artifacts/app-snapshot.png (2560\u00d71640, 557907 bytes)\npath=/Users/srihari/workspace/motomirror/artifacts/app-snapshot.png exists=True",
+      "evidence": "$ /Users/srihari/workspace/motomirror/dist/MotoMirror.app/Contents/MacOS/MotoMirror --snapshot /Users/srihari/workspace/motomirror/artifacts/app-snapshot.png\nexit=0\nMotoMirror snapshot: connected \u2192 /Users/srihari/workspace/motomirror/artifacts/app-snapshot.png (2560\u00d71640, 558611 bytes)\npath=/Users/srihari/workspace/motomirror/artifacts/app-snapshot.png exists=True",
       "weight": 1,
       "seconds": 0.19
     },
@@ -349,7 +349,7 @@
       "category": "App/UI",
       "title": "Snapshot has a PNG signature",
       "status": "pass",
-      "evidence": "PNG signature valid; IHDR={'width': 2560, 'height': 1640, 'bitDepth': 8, 'colorType': 6, 'interlace': 0, 'bytes': 557907}",
+      "evidence": "PNG signature valid; IHDR={'width': 2560, 'height': 1640, 'bitDepth': 8, 'colorType': 6, 'interlace': 0, 'bytes': 558611}",
       "weight": 1,
       "seconds": 0.0
     },
@@ -367,7 +367,7 @@
       "category": "App/UI",
       "title": "Snapshot is larger than 20 KB",
       "status": "pass",
-      "evidence": "bytes=557907 (requires > 20 KB)",
+      "evidence": "bytes=558611 (requires > 20 KB)",
       "weight": 1,
       "seconds": 0.0
     },
@@ -376,61 +376,61 @@
       "category": "App/UI",
       "title": "Snapshot is not blank",
       "status": "pass",
-      "evidence": "uniqueColors=783 channelRange=229 variance=1439.95",
+      "evidence": "uniqueColors=785 channelRange=229 variance=1439.78",
       "weight": 1,
-      "seconds": 2.96
+      "seconds": 3.59
     },
     {
       "id": "A06",
       "category": "App/UI",
       "title": "Snapshot has at least 32 sampled colors",
       "status": "pass",
-      "evidence": "sampled unique colors=783 (requires >= 32)",
+      "evidence": "sampled unique colors=785 (requires >= 32)",
       "weight": 1,
-      "seconds": 2.9
+      "seconds": 3.39
     },
     {
       "id": "A07",
       "category": "App/UI",
       "title": "Demo connected snapshot renders",
       "status": "pass",
-      "evidence": "state=connected path=/Users/srihari/workspace/motomirror/artifacts/app-demo-connected.png dimensions=2560x1640 bytes=557944 uniqueColors=783",
+      "evidence": "state=connected path=/Users/srihari/workspace/motomirror/artifacts/app-demo-connected.png dimensions=2560x1640 bytes=558739 uniqueColors=785",
       "weight": 1,
-      "seconds": 3.05
+      "seconds": 3.55
     },
     {
       "id": "A08",
       "category": "App/UI",
       "title": "Demo empty snapshot renders",
       "status": "pass",
-      "evidence": "state=empty path=/Users/srihari/workspace/motomirror/artifacts/app-demo-empty.png dimensions=2560x1640 bytes=559372 uniqueColors=545",
+      "evidence": "state=empty path=/Users/srihari/workspace/motomirror/artifacts/app-demo-empty.png dimensions=2560x1640 bytes=559687 uniqueColors=548",
       "weight": 1,
-      "seconds": 3.2
+      "seconds": 3.9
     },
     {
       "id": "A09",
       "category": "App/UI",
       "title": "Demo unauthorized snapshot renders",
       "status": "pass",
-      "evidence": "state=unauthorized path=/Users/srihari/workspace/motomirror/artifacts/app-demo-unauthorized.png dimensions=2560x1640 bytes=507372 uniqueColors=503",
+      "evidence": "state=unauthorized path=/Users/srihari/workspace/motomirror/artifacts/app-demo-unauthorized.png dimensions=2560x1640 bytes=507715 uniqueColors=506",
       "weight": 1,
-      "seconds": 3.25
+      "seconds": 3.24
     },
     {
       "id": "A10",
       "category": "App/UI",
       "title": "Demo setup snapshot renders",
       "status": "pass",
-      "evidence": "state=setup path=/Users/srihari/workspace/motomirror/artifacts/app-demo-setup.png dimensions=2560x1640 bytes=522406 uniqueColors=547",
+      "evidence": "state=setup path=/Users/srihari/workspace/motomirror/artifacts/app-demo-setup.png dimensions=2560x1640 bytes=522750 uniqueColors=546",
       "weight": 1,
-      "seconds": 2.87
+      "seconds": 3.65
     },
     {
       "id": "A11",
       "category": "App/UI",
       "title": "Demo snapshots are visually distinct",
       "status": "pass",
-      "evidence": "distinct demo snapshots=4 hashes={'connected': '44bd89e322b0', 'empty': '5047e106c24f', 'unauthorized': '38c42b144aa6', 'setup': 'e7cb0102ac79'}",
+      "evidence": "distinct demo snapshots=4 hashes={'connected': 'f998ba5e47e6', 'empty': '5e9c2042b348', 'unauthorized': '54c1ed3a2642', 'setup': '829be09cbcb4'}",
       "weight": 1,
       "seconds": 0.0
     },
@@ -448,7 +448,7 @@
       "category": "Device basics",
       "title": "A usable device is present",
       "status": "pass",
-      "evidence": "waited=0s serial=emulator-5554 model=sdk_gphone64_arm64 transport=unknown\n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:20",
+      "evidence": "waited=0s serial=emulator-5554 model=sdk_gphone64_arm64 transport=unknown\n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:5",
       "weight": 1,
       "seconds": 0.01
     },
@@ -459,7 +459,7 @@
       "status": "pass",
       "evidence": "serial=emulator-5554 entry={'displayName': 'sdk gphone64 arm64', 'model': 'sdk_gphone64_arm64', 'serial': 'emulator-5554', 'state': 'device', 'transport': 'unknown'}",
       "weight": 1,
-      "seconds": 0.02
+      "seconds": 0.04
     },
     {
       "id": "D03",
@@ -468,7 +468,7 @@
       "status": "pass",
       "evidence": "target=any model='sdk_gphone64_arm64' detailsModel='sdk_gphone64_arm64' serial=emulator-5554",
       "weight": 1,
-      "seconds": 0.1
+      "seconds": 0.18
     },
     {
       "id": "D04",
@@ -529,7 +529,7 @@
       "category": "Device basics",
       "title": "Storage totals are consistent",
       "status": "pass",
-      "evidence": "storage={'availableBytes': 8440938496, 'totalBytes': 10411143168, 'usedBytes': 1970204672, 'usedFraction': 0.18923999413010473} expected_used=1970204672 expected_usedFraction=0.18923999413010473 used_arithmetic_ok=True fraction_ok=True",
+      "evidence": "storage={'availableBytes': 8497852416, 'totalBytes': 10411143168, 'usedBytes': 1913290752, 'usedFraction': 0.18377335909477718} expected_used=1913290752 expected_usedFraction=0.18377335909477718 used_arithmetic_ok=True fraction_ok=True",
       "weight": 1,
       "seconds": 0.0
     },
@@ -547,9 +547,9 @@
       "category": "Device basics",
       "title": "CLI screenshot writes a PNG",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl screenshot --serial emulator-5554 --out /Users/srihari/workspace/motomirror/artifacts/screenshot.png\nexit=0\n/Users/srihari/workspace/motomirror/artifacts/screenshot.png (1379537 bytes)\nPNG header={'width': 1080, 'height': 2400, 'bitDepth': 8, 'colorType': 6, 'interlace': 0, 'bytes': 1379537}",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl screenshot --serial emulator-5554 --out /Users/srihari/workspace/motomirror/artifacts/screenshot.png\nexit=0\n/Users/srihari/workspace/motomirror/artifacts/screenshot.png (70549 bytes)\nPNG header={'width': 1080, 'height': 2400, 'bitDepth': 8, 'colorType': 6, 'interlace': 0, 'bytes': 70549}",
       "weight": 1,
-      "seconds": 0.54
+      "seconds": 0.33
     },
     {
       "id": "D13",
@@ -558,16 +558,16 @@
       "status": "pass",
       "evidence": "screenshot dimensions=1080x2400 (requires >= 800x600)",
       "weight": 1,
-      "seconds": 0.5
+      "seconds": 0.32
     },
     {
       "id": "D14",
       "category": "Device basics",
       "title": "Screenshot is not blank",
       "status": "pass",
-      "evidence": "screenshot bytes=1379537 uniqueColors=3173 channelRange=243 variance=8932.99",
+      "evidence": "screenshot bytes=185962 uniqueColors=350 channelRange=229 variance=993.01",
       "weight": 1,
-      "seconds": 2.09
+      "seconds": 1.41
     },
     {
       "id": "D15",
@@ -576,7 +576,7 @@
       "status": "pass",
       "evidence": "wake:\n$ /opt/homebrew/bin/adb -s emulator-5554 shell input keyevent KEYCODE_WAKEUP\nexit=0\nhome:\n$ /opt/homebrew/bin/adb -s emulator-5554 shell input keyevent KEYCODE_HOME\nexit=0",
       "weight": 1,
-      "seconds": 0.05
+      "seconds": 0.1
     },
     {
       "id": "D16",
@@ -585,23 +585,23 @@
       "status": "pass",
       "evidence": "attempt 1 direct:\n$ /opt/homebrew/bin/adb -s emulator-5554 exec-out uiautomator dump /dev/tty\nexit=0\n<?xml version='1.0' encoding='UTF-8' standalone='yes' ?><hierarchy rotation=\"0\"><node index=\"0\" text=\"\" resource-id=\"\" class=\"android.widget.FrameLayout\" package=\"com.google.android.apps.nexuslauncher\" content-desc=\"\"\n...[truncated]...\ntent-desc=\"\" checkable=\"false\" checked=\"false\" clickable=\"false\" enabled=\"true\" focusable=\"false\" focused=\"false\" scrollable=\"false\" long-clickable=\"false\" password=\"false\" selected=\"false\" bounds=\"[0,2006][1080,2400]\" /></node></node></node></node></node></hierarchy>UI hierchary dumped to: /dev/tty",
       "weight": 1,
-      "seconds": 3.91
+      "seconds": 2.46
     },
     {
       "id": "M01",
       "category": "Mirroring",
       "title": "Headless mirror runs for 8 seconds",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --duration 8 --record /Users/srihari/workspace/motomirror/artifacts/mirror.mp4\nexit=0\n2026-11-09 21:22:48.305 scrcpy[71594:4125804] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 420.1 MB/s (733930 bytes in 0.002s)\n[server] INFO: Device: [Google] google sdk_gphone64_arm64 (Android 15)\nWARN: [FFmpeg] track 1: codec frame size is not set\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror.mp4\nMirror session finished for emulator-5554 after 8.2s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror.mp4.",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --duration 8 --record /Users/srihari/workspace/motomirror/artifacts/mirror.mp4\nexit=0\n2026-11-11 06:29:01.274 scrcpy[99252:2727116] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 336.1 MB/s (733930 bytes in 0.002s)\n[server] INFO: Device: [Google] google sdk_gphone64_arm64 (Android 15)\nWARN: [FFmpeg] track 1: codec frame size is not set\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror.mp4\nMirror session finished for emulator-5554 after 8.4s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror.mp4.",
       "weight": 1,
-      "seconds": 10.35
+      "seconds": 10.54
     },
     {
       "id": "M02",
       "category": "Mirroring",
       "title": "Mirror recording file is substantial",
       "status": "pass",
-      "evidence": "recording=/Users/srihari/workspace/motomirror/artifacts/mirror.mp4 bytes=2373421 (requires > 20 KB)",
+      "evidence": "recording=/Users/srihari/workspace/motomirror/artifacts/mirror.mp4 bytes=2068754 (requires > 20 KB)",
       "weight": 1,
       "seconds": 0.0
     },
@@ -610,16 +610,16 @@
       "category": "Mirroring",
       "title": "Recording contains video frames",
       "status": "pass",
-      "evidence": "recording=/Users/srihari/workspace/motomirror/artifacts/mirror.mp4 probe_ok=True frames=128 video={'codec': 'h264', 'width': 1080, 'height': 2400, 'fps': 17.448121373494306, 'frames': 128}",
+      "evidence": "recording=/Users/srihari/workspace/motomirror/artifacts/mirror.mp4 probe_ok=True frames=105 video={'codec': 'h264', 'width': 1080, 'height': 2400, 'fps': 14.548040863830337, 'frames': 105}",
       "weight": 1,
-      "seconds": 0.23
+      "seconds": 0.28
     },
     {
       "id": "M04",
       "category": "Mirroring",
       "title": "Recording video codec is H.264",
       "status": "pass",
-      "evidence": "video codec='h264' stream={'codec': 'h264', 'width': 1080, 'height': 2400, 'fps': 17.448121373494306, 'frames': 128}",
+      "evidence": "video codec='h264' stream={'codec': 'h264', 'width': 1080, 'height': 2400, 'fps': 14.548040863830337, 'frames': 105}",
       "weight": 1,
       "seconds": 0.0
     },
@@ -628,7 +628,7 @@
       "category": "Mirroring",
       "title": "Mirror session stays alive for 8 seconds",
       "status": "pass",
-      "evidence": "wall-clock mirror session=8.2s (requested 8s), recording=/Users/srihari/workspace/motomirror/artifacts/mirror.mp4 exists=True",
+      "evidence": "wall-clock mirror session=8.4s (requested 8s), recording=/Users/srihari/workspace/motomirror/artifacts/mirror.mp4 exists=True",
       "weight": 1,
       "seconds": 0.0
     },
@@ -655,7 +655,7 @@
       "category": "Mirroring",
       "title": "Recording frame rate is non-zero",
       "status": "pass",
-      "evidence": "video fps=17.448121373494306 (requires > 0)",
+      "evidence": "video fps=14.548040863830337 (requires > 0)",
       "weight": 1,
       "seconds": 0.0
     },
@@ -682,7 +682,7 @@
       "category": "Mirroring",
       "title": "Second mirror session starts cleanly",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --duration 8 --record /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4\nexit=0\n2026-11-09 21:22:58.867 scrcpy[71696:4126687] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 546.7 MB/s (733930 bytes in 0.001s)\n[server] INFO: Device: [Google] google sdk_gphone64_arm64 (Android 15)\nWARN: [FFmpeg] track 1: codec frame size is not set\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4\nMirror session finished for emulator-5554 after 8.5s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4.",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --duration 8 --record /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4\nexit=0\n2026-11-11 06:29:12.125 scrcpy[99311:2727734] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 384.4 MB/s (733930 bytes in 0.002s)\n[server] INFO: Device: [Google] google sdk_gphone64_arm64 (Android 15)\nWARN: [FFmpeg] track 1: codec frame size is not set\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: ADB device found:\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4\nMirror session finished for emulator-5554 after 8.5s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror2.mp4.",
       "weight": 1,
       "seconds": 10.6
     },
@@ -691,81 +691,81 @@
       "category": "Mirroring",
       "title": "Second recording is valid",
       "status": "pass",
-      "evidence": "second recording=/Users/srihari/workspace/motomirror/artifacts/mirror2.mp4 wall_clock=8.5s codec='h264' frames=137 video=1080x2400 device=1080x2400 portrait=True landscape=False same_aspect_scaled=True video_ratio=0.4500 device_ratio=0.4500",
+      "evidence": "second recording=/Users/srihari/workspace/motomirror/artifacts/mirror2.mp4 wall_clock=8.5s codec='h264' frames=119 video=1080x2400 device=1080x2400 portrait=True landscape=False same_aspect_scaled=True video_ratio=0.4500 device_ratio=0.4500",
       "weight": 1,
-      "seconds": 0.21
+      "seconds": 0.29
     },
     {
       "id": "M13",
       "category": "Mirroring",
       "title": "Device stays connected after mirroring",
       "status": "pass",
-      "evidence": "device after mirroring={'serial': 'emulator-5554', 'state': 'device', 'model': 'sdk_gphone64_arm64', 'transport': 'unknown'} \n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:20",
+      "evidence": "device after mirroring={'serial': 'emulator-5554', 'state': 'device', 'model': 'sdk_gphone64_arm64', 'transport': 'unknown'} \n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:5",
       "weight": 1,
-      "seconds": 0.02
+      "seconds": 0.03
     },
     {
       "id": "M14",
       "category": "Mirroring",
       "title": "No orphan scrcpy processes remain",
       "status": "pass",
-      "evidence": "real scrcpy executable processes=none serial=emulator-5554\nps evidence:\n$ ps -axo pid=,ppid=,comm=,args=\nexit=0\n1     0 /sbin/launchd    /sbin/launchd\n   96     1 /usr/libexec/log /usr/libexec/logd\n   98     1 /usr/libexec/Use /usr/libexec/UserEventAgent (System)\n  100     1 /System/Library/ /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd\n  101     1 /System/Library/ /System/Library/PrivateFrameworks/MediaRemote.framework/Support/mediaremoted\n  104     1 /usr/sbin/system /usr/sbin/systemstats --daemon\n  108     1 /usr/libexec/con /usr/libexec/configd\n  110     1 /System/Library/ /System/Librar\n...[truncated]...\nservice-sandbox-type=none --message-loop-type-ui --metrics-client-id=9b618d61-9849-4f1a-92b1-c9f591377b71 --shared-files --metrics-shmem-handle=1752395122,r,12322571275800451591,5450997321463219499,524288 --field-trial-handle=1718379636,r,12775046371839879021,8916625235905312052,262144 --variations-seed-version=20261108-030038.655000-production --pseudonymization-salt-handle=1935764596,r,7178576343506740569,6532878060956575553,4 --trace-process-track-uuid=3190708998493415531\n98972     1 /System/Library/ /System/Library/PrivateFrameworks/AssistantServices.framework/Versions/A/Support/assistantd",
+      "evidence": "real scrcpy executable processes=none serial=emulator-5554\nps evidence:\n$ ps -axo pid=,ppid=,comm=,args=\nexit=0\n1     0 /sbin/launchd    /sbin/launchd\n   96     1 /usr/libexec/log /usr/libexec/logd\n   98     1 /usr/libexec/Use /usr/libexec/UserEventAgent (System)\n  100     1 /System/Library/ /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd\n  101     1 /System/Library/ /System/Library/PrivateFrameworks/MediaRemote.framework/Support/mediaremoted\n  104     1 /usr/sbin/system /usr/sbin/systemstats --daemon\n  108     1 /usr/libexec/con /usr/libexec/configd\n  110     1 /System/Library/ /System/Librar\n...[truncated]...\nificationOnRedirect,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,ThirdPartyStoragePartitioning,Translate,msEdgeUpdateLaunchServicesPreferredVersion,msForceBrowserSignIn --variations-seed-version --pseudonymization-salt-handle=1935764596,r,6299956084996560576,11359403247462700241,4 --trace-process-track-uuid=3190709082827181941\n99351 98922 adb              adb -s emulator-5554 shell uiautomator dump /sdcard/parakey-window.xml >/dev/null 2>&1\n99356 98741 ps               ps -axo pid=,ppid=,comm=,args=",
       "weight": 1,
-      "seconds": 0.04
+      "seconds": 0.07
     },
     {
       "id": "M15",
       "category": "Mirroring",
       "title": "No-audio mirror session runs",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --no-audio --duration 8 --record /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4\nexit=0\n2026-11-09 21:23:09.703 scrcpy[71807:4127591] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 154.3 MB/s (733930 bytes in 0.005s)\n[server] INFO: D\n...[truncated]...\nrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4\nMirror session finished for emulator-5554 after 8.3s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4.\nrecording=/Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4 bytes=2449965",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --no-audio --duration 8 --record /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4\nexit=0\n2026-11-11 06:29:23.084 scrcpy[99365:2728259] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 1443.4 MB/s (733930 bytes in 0.000s)\n[server] INFO: \n...[truncated]...\nrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4\nMirror session finished for emulator-5554 after 8.4s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4.\nrecording=/Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4 bytes=2192180",
       "weight": 1,
-      "seconds": 10.4
+      "seconds": 10.56
     },
     {
       "id": "M16",
       "category": "Mirroring",
       "title": "No-audio recording has no audio stream",
       "status": "pass",
-      "evidence": "no-audio recording=/Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4 probe_ok=True frames=121 audio_stream=False",
+      "evidence": "no-audio recording=/Users/srihari/workspace/motomirror/artifacts/mirror_no_audio.mp4 probe_ok=True frames=113 audio_stream=False",
       "weight": 1,
-      "seconds": 0.28
+      "seconds": 0.21
     },
     {
       "id": "M17",
       "category": "Mirroring",
       "title": "Max-size and max-fps session runs",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --duration 6 --max-size 720 --max-fps 30 --record /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4\nexit=0\n2026-11-09 21:23:20.444 scrcpy[71888:4128217] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 372.8 MB/s (733930 bytes in 0.002s)\n[\n...[truncated]...\nile/scrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4\nMirror session finished for emulator-5554 after 6.4s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4.\nrecording=/Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4 bytes=526611",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial emulator-5554 --headless --duration 6 --max-size 720 --max-fps 30 --record /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4\nexit=0\n2026-11-11 06:29:33.915 scrcpy[99407:2728727] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 1287.2 MB/s (733930 bytes in 0.001s)\n\n...[truncated]...\nile/scrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4\nMirror session finished for emulator-5554 after 6.4s, recording: /Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4.\nrecording=/Users/srihari/workspace/motomirror/artifacts/mirror_limits.mp4 bytes=478678",
       "weight": 1,
-      "seconds": 8.73
+      "seconds": 8.58
     },
     {
       "id": "M18",
       "category": "Mirroring",
       "title": "Max-size and max-fps limits are applied",
       "status": "pass",
-      "evidence": "max-size/max-fps recording width=324 height=720 longest=720 fps=17.853990069213967 frames=100 wall_clock=6.4s (requires longest edge 720, fps <= 30)",
+      "evidence": "max-size/max-fps recording width=324 height=720 longest=720 fps=21.389332606070052 frames=122 wall_clock=6.4s (requires longest edge 720, fps <= 30)",
       "weight": 1,
-      "seconds": 0.06
+      "seconds": 0.04
     },
     {
       "id": "W01",
       "category": "Wireless",
       "title": "Wireless transport is established",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl wireless tcpip --serial emulator-5554 --port 5555\nexit=1\nmotomirrorctl failed: adb did not switch the device to TCP mode.\ntcpip command exit=1 port=5555 property_proof=False endpoint_proof=True\n$ /opt/homebrew/bin/adb -s emulator-5554 shell getprop service.adb.tcp.port\nexit=1\nadb: device offline\nservice.adb.tcp.port='' requested='5555'\n$ /opt/homebrew/bin/adb connect 127.0.0.1:5555\nexit=0\nconnected to 127.0.0.1:5555\n$ /opt/homebrew/bin/adb -s 127.0.0.1:5555 get-state\nexit=0\ndevice\nproperty_proves_tcp_mode=False endpoint_state_device=True",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl wireless tcpip --serial emulator-5554 --port 5555\nexit=2\nMissing required option --serial.\ntcpip command exit=2 port=5555 property_proof=False endpoint_proof=True\n$ /opt/homebrew/bin/adb -s emulator-5554 shell getprop service.adb.tcp.port\nexit=0\nservice.adb.tcp.port='' requested='5555'\n$ /opt/homebrew/bin/adb connect 127.0.0.1:5555\nexit=0\nconnected to 127.0.0.1:5555\n$ /opt/homebrew/bin/adb -s 127.0.0.1:5555 get-state\nexit=0\ndevice\nproperty_proves_tcp_mode=False endpoint_state_device=True",
       "weight": 1,
-      "seconds": 0.13
+      "seconds": 0.09
     },
     {
       "id": "W02",
       "category": "Wireless",
       "title": "Wireless target is already connected",
       "status": "pass",
-      "evidence": "connect:\n$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl wireless connect --host 127.0.0.1 --port 5555\nexit=0\nalready connected to 127.0.0.1:5555\nwireless_serial=127.0.0.1:5555 listed=True devices=[{'serial': '127.0.0.1:5555', 'state': 'device', 'model': 'sdk_gphone64_arm64', 'transport': 'wireless'}, {'serial': 'emulator-5554', 'state': 'offline', 'model': 'sdk_gphone64_arm64', 'transport': 'unknown'}]\n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\n127.0.0.1:5555         device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:21\nemulator-5554          offline product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:20",
+      "evidence": "connect:\n$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl wireless connect --host 127.0.0.1 --port 5555\nexit=0\nalready connected to 127.0.0.1:5555\nwireless_serial=127.0.0.1:5555 listed=True devices=[{'serial': '127.0.0.1:5555', 'state': 'device', 'model': 'sdk_gphone64_arm64', 'transport': 'wireless'}, {'serial': 'emulator-5554', 'state': 'device', 'model': 'sdk_gphone64_arm64', 'transport': 'unknown'}]\n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\n127.0.0.1:5555         device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:6\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:5",
       "weight": 1,
-      "seconds": 0.07
+      "seconds": 0.05
     },
     {
       "id": "W03",
@@ -781,25 +781,25 @@
       "category": "Wireless",
       "title": "Wireless screenshot is valid",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl screenshot --serial 127.0.0.1:5555 --out /Users/srihari/workspace/motomirror/artifacts/wireless.png\nexit=0\n/Users/srihari/workspace/motomirror/artifacts/wireless.png (1379708 bytes)\nscreenshot=/Users/srihari/workspace/motomirror/artifacts/wireless.png dims=1080x2400 uniqueColors=3173",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl screenshot --serial 127.0.0.1:5555 --out /Users/srihari/workspace/motomirror/artifacts/wireless.png\nexit=0\n/Users/srihari/workspace/motomirror/artifacts/wireless.png (148827 bytes)\nscreenshot=/Users/srihari/workspace/motomirror/artifacts/wireless.png dims=1080x2400 uniqueColors=299",
       "weight": 1,
-      "seconds": 2.27
+      "seconds": 1.14
     },
     {
       "id": "W05",
       "category": "Wireless",
       "title": "Mirror runs over wireless",
       "status": "pass",
-      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial 127.0.0.1:5555 --headless --duration 6 --record /Users/srihari/workspace/motomirror/artifacts/wireless.mp4\nexit=0\n2026-11-09 21:23:29.603 scrcpy[71959:4128863] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 548.3 MB/s (733930 bytes in 0.001s)\n[server] INFO: Device: [Google] google sdk_gphone64_arm64 (Android 15)\nWARN: [FFmpeg] track 1: codec frame size is not set\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  127.0.0.1:5555                  device  sdk_gphone64_arm64\nINFO:         (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/wireless.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/wireless.mp4\nMirror session finished for 127.0.0.1:5555 after 6.5s, recording: /Users/srihari/workspace/motomirror/artifacts/wireless.mp4.",
+      "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl mirror --serial 127.0.0.1:5555 --headless --duration 6 --record /Users/srihari/workspace/motomirror/artifacts/wireless.mp4\nexit=0\n2026-11-11 06:29:41.700 scrcpy[99519:2729300] No video mirroring, SDK mouse disabled\n/opt/homebrew/Cellar/scrcpy/5.0.1/share/scrcpy/scrcpy-server: 1 file pushed, 0 skipped. 211.8 MB/s (733930 bytes in 0.003s)\n[server] INFO: Device: [Google] google sdk_gphone64_arm64 (Android 15)\nWARN: [FFmpeg] track 1: codec frame size is not set\nscrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>\nINFO: ADB device found:\nINFO:     --> (tcpip)  127.0.0.1:5555                  device  sdk_gphone64_arm64\nINFO:         (tcpip)  emulator-5554                   device  sdk_gphone64_arm64\nINFO: Recording started to mp4 file: /Users/srihari/workspace/motomirror/artifacts/wireless.mp4\nINFO: Recording complete to mp4 file: /Users/srihari/workspace/motomirror/artifacts/wireless.mp4\nMirror session finished for 127.0.0.1:5555 after 6.5s, recording: /Users/srihari/workspace/motomirror/artifacts/wireless.mp4.",
       "weight": 1,
-      "seconds": 6.69
+      "seconds": 6.5
     },
     {
       "id": "W06",
       "category": "Wireless",
       "title": "Wireless recording is valid H.264",
       "status": "pass",
-      "evidence": "wireless recording=/Users/srihari/workspace/motomirror/artifacts/wireless.mp4 wall_clock=6.5s codec='h264' frames=96 video=1080x2400 device=1080x2400 portrait=True landscape=False same_aspect_scaled=True video_ratio=0.4500 device_ratio=0.4500",
+      "evidence": "wireless recording=/Users/srihari/workspace/motomirror/artifacts/wireless.mp4 wall_clock=6.5s codec='h264' frames=103 video=1080x2400 device=1080x2400 portrait=True landscape=False same_aspect_scaled=True video_ratio=0.4500 device_ratio=0.4500",
       "weight": 1,
       "seconds": 0.17
     },
@@ -817,7 +817,7 @@
       "category": "Wireless",
       "title": "Wireless device remains usable or recovers",
       "status": "pass",
-      "evidence": "wireless serial 127.0.0.1:5555 removed; devices=[{'serial': 'emulator-5554', 'state': 'device', 'model': 'sdk_gphone64_arm64', 'transport': 'unknown'}]\n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:23",
+      "evidence": "wireless serial 127.0.0.1:5555 removed; devices=[{'serial': 'emulator-5554', 'state': 'device', 'model': 'sdk_gphone64_arm64', 'transport': 'unknown'}]\n$ /opt/homebrew/bin/adb devices -l\nexit=0\nList of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:5",
       "weight": 1,
       "seconds": 0.01
     },
@@ -826,7 +826,7 @@
       "category": "Docs",
       "title": "README.md exists and is substantive",
       "status": "pass",
-      "evidence": "README.md exists=True bytes=12747",
+      "evidence": "README.md exists=True bytes=13479",
       "weight": 1,
       "seconds": 0.0
     },
@@ -882,7 +882,7 @@
       "status": "pass",
       "evidence": "missing-device command must fail clearly without crashing\n$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl info --serial motomirror-missing-device --json\nexit=1\nDevice motomirror-missing-device is not connected. Run 'motomirrorctl devices'.",
       "weight": 1,
-      "seconds": 0.03
+      "seconds": 0.01
     },
     {
       "id": "R02",
@@ -891,7 +891,7 @@
       "status": "pass",
       "evidence": "exit=0 keys=['adb', 'adbVersion', 'deviceCount', 'ffmpeg', 'ok', 'scrcpy', 'scrcpyVersion'] missing=none payload={'adb': '/opt/homebrew/bin/adb', 'adbVersion': 'Android Debug Bridge version 1.0.41', 'deviceCount': 1, 'ffmpeg': '/opt/homebrew/bin/ffmpeg', 'ok': True, 'scrcpy': '/opt/homebrew/bin/scrcpy', 'scrcpyVersion': 'scrcpy 5.0.1 <https://github.com/Genymobile/scrcpy>'}",
       "weight": 1,
-      "seconds": 0.08
+      "seconds": 0.04
     },
     {
       "id": "R03",
@@ -900,7 +900,7 @@
       "status": "pass",
       "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl definitely-not-a-command\nexit=2\nUnknown command 'definitely-not-a-command'.\n\nmotomirrorctl 1.0.0 \u2014 headless MotoMirror controller\n\nUSAGE:\n  motomirrorctl doctor [--json]\n  motomirrorctl devices [--json]\n  motomirrorctl info --serial SERIAL [--json]\n  motomirrorctl screenshot --serial SERIAL --out PATH\n  motomirrorctl mirror --serial SERIAL [options]\n  motomirrorctl wire\n...[truncated]...\nrupted)\n  --record PATH        Record an MP4 file\n  --no-audio           Disable audio forwarding\n  --max-size N         Limit the longest screen edge\n  --max-fps N          Limit capture frame rate\n  --bitrate MBPS       Video bit rate in megabits per second\n  --headless           Add --no-window and --no-playback\n  --no-window          Add --no-window only\n\nENVIRONMENT:\n  MOTOMIRROR_ADB, MOTOMIRROR_SCRCPY, MOTOMIRROR_FFMPEG override tool paths.",
       "weight": 1,
-      "seconds": 0.01
+      "seconds": 0.0
     },
     {
       "id": "R04",
@@ -909,7 +909,7 @@
       "status": "pass",
       "evidence": "invalid pairing code rejection (not a pairing success)\n$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl wireless pair --host 127.0.0.1 --port 5555 --code 12345\nexit=1\nmotomirrorctl failed: Enter the 6-digit pairing code shown on the phone (for example 123456).",
       "weight": 1,
-      "seconds": 0.02
+      "seconds": 0.01
     },
     {
       "id": "R05",
@@ -918,7 +918,7 @@
       "status": "pass",
       "evidence": "script=/Users/srihari/workspace/motomirror/scripts/verify.sh executable=True bash -n exit=0\n$ bash -n /Users/srihari/workspace/motomirror/scripts/verify.sh\nexit=0",
       "weight": 1,
-      "seconds": 0.01
+      "seconds": 0.0
     },
     {
       "id": "R06",
@@ -927,99 +927,99 @@
       "status": "pass",
       "evidence": "$ /Users/srihari/workspace/motomirror/.build/out/Products/Debug/motomirrorctl version\nexit=0\nmotomirrorctl 1.0.0",
       "weight": 1,
-      "seconds": 0.02
+      "seconds": 0.0
     }
   ],
   "artifacts": [
     {
       "path": "artifacts/app-demo-connected.png",
-      "bytes": 557944,
-      "sha256": "44bd89e322b0787c1d3a4c4bdeed2800097e1cdcdb359f41dddcd095da166c5f"
+      "bytes": 558739,
+      "sha256": "f998ba5e47e693b0e3b8a5cd82ebd519d73d10fae7a07bde42a22054efd6945d"
     },
     {
       "path": "artifacts/app-demo-empty.png",
-      "bytes": 559372,
-      "sha256": "5047e106c24f500fb9f5db34f3b2a43ff947d3853c3ef311e16d680155b73549"
+      "bytes": 559687,
+      "sha256": "5e9c2042b348f93ab9b3d3d2040f0264604f855a1ca12dfcfd15ae8457540036"
     },
     {
       "path": "artifacts/app-demo-setup.png",
-      "bytes": 522406,
-      "sha256": "e7cb0102ac79f553524223b2a3eef52aa8348c0e15ccf81869bca9e9a244e01b"
+      "bytes": 522750,
+      "sha256": "829be09cbcb4e21a970642fdccd76da2a64874379323b324e9c0083c0c0e4c70"
     },
     {
       "path": "artifacts/app-demo-unauthorized.png",
-      "bytes": 507372,
-      "sha256": "38c42b144aa63daa689f33fcdca1d9caf9ad418a24dc669670655bde142864f3"
+      "bytes": 507715,
+      "sha256": "54c1ed3a2642bc8308341c30797c06b27d0b289ad43506b0842cdf08d1b3d019"
     },
     {
       "path": "artifacts/app-snapshot.png",
-      "bytes": 557907,
-      "sha256": "bb3c1ae042fd4d6999cfa713fd827d7887319a7f9f376e28b6b716ded7decf54"
+      "bytes": 558611,
+      "sha256": "cee40c7ab64d69d791f461e1833c6a0f58019e82a376de7c3ea2b9cf56269c78"
     },
     {
       "path": "artifacts/mirror.mp4",
-      "bytes": 2373421,
-      "sha256": "b2a68209b581c437a91aa7ecca1fbe79313030809651f6f64fc89da56d0d142f"
+      "bytes": 2068754,
+      "sha256": "f6bb3833b223f038abc9a564eb91c73de730b18c70716cbcc953f289aa58686c"
     },
     {
       "path": "artifacts/mirror2.mp4",
-      "bytes": 2622375,
-      "sha256": "741fb33310120741f86e360e6cc54a5787de59b2531ad6697bd638a53b8fba8f"
+      "bytes": 2237479,
+      "sha256": "56f63358e45d5ab0b2aceab68dc87dc1f6151664ad9be7a412e0606fcdde793d"
     },
     {
       "path": "artifacts/mirror2_session.log",
       "bytes": 1835,
-      "sha256": "549be992294f8199b23c6b7c1feecebf41cf83a4a763008021108a6854d5acaa"
+      "sha256": "6cba27406357aa02a63dd0088e9412558e301bcc7f0ac145a81c77a332bf73a4"
     },
     {
       "path": "artifacts/mirror_limits.mp4",
-      "bytes": 526611,
-      "sha256": "5cdb6e56e32a615f9a420e0d35e8ff7551c6e60039fe1fc8767077926998cd33"
+      "bytes": 478678,
+      "sha256": "0d2f3878594bb36e45c7b395f5556dc3b2f76195f8b2efda655ca4ea9e439712"
     },
     {
       "path": "artifacts/mirror_limits_session.log",
-      "bytes": 1905,
-      "sha256": "fbfb06c869d7f8e6cd7fd6626470a57ed005138239466439e2474976578f6356"
+      "bytes": 1907,
+      "sha256": "6548f75dd3df536e9305fe7b49037033ccae29b4dff8ec4db3a1d642de8f0b72"
     },
     {
       "path": "artifacts/mirror_no_audio.mp4",
-      "bytes": 2449965,
-      "sha256": "276679b205a4f4597c6bc81e8ada7bd8552e24179b6365e12d45ad87282a7d85"
+      "bytes": 2192180,
+      "sha256": "4bd1dad9500373bfb7971f514646d3fe1c5114f5be4ea52c7b3e29b572591481"
     },
     {
       "path": "artifacts/mirror_no_audio_session.log",
-      "bytes": 1798,
-      "sha256": "125dc7896ac76c701ad3c23fca65b4aa1336c0e7221f84bb724df6ff76a3c57a"
+      "bytes": 1800,
+      "sha256": "6d324fec60ce961b2340b41993d3747aa642080fc9cd248757561677a767a79a"
     },
     {
       "path": "artifacts/mirror_session.log",
       "bytes": 1828,
-      "sha256": "71430298ebe10676f1deea470f6d6a9e40f01fab8560d76e12ebabe8fa737afe"
+      "sha256": "6b31f27354d64522f2753c18dea627a060fa3b7f04339bd18e668d1e13902d85"
     },
     {
       "path": "artifacts/screenshot.png",
-      "bytes": 1379537,
-      "sha256": "bcefefb3bc11ff49c2c84b59dbde8a7da7ec9807706393eab34ab8882750d81b"
+      "bytes": 185962,
+      "sha256": "be8b42312783c3c24518ff2645ce39fde2012461a7e188a1ce5c1aaf6e60c459"
     },
     {
-      "path": "artifacts/unit-tests-20261109-212157.log",
-      "bytes": 33073,
-      "sha256": "380561b5ddeeb02bccb1e35b47ed7bcc2cc59d13c20dc097f8f79b4da7b8af48"
+      "path": "artifacts/unit-tests-20261111-062810.log",
+      "bytes": 34202,
+      "sha256": "220f1fd90ae26f32f6cab7849bc71ec88746d597141d5b65dd48a58ca44c87a2"
     },
     {
       "path": "artifacts/wireless.mp4",
-      "bytes": 1790215,
-      "sha256": "2b9035d57496db00ccef227856724fa7386f218907740b6251fbcb6013821d85"
+      "bytes": 1943642,
+      "sha256": "12110a0254641fdc61896df13cef72c2cce6a8b77e0e1fea166fd4ea256e1467"
     },
     {
       "path": "artifacts/wireless.png",
-      "bytes": 1379708,
-      "sha256": "eee3216fcd38ae7f0bd4e0245c7c4bac9ccdc22d1b003e1a3e0afd42b16f8add"
+      "bytes": 148827,
+      "sha256": "c41afe808d9485f2392ab4b239babc167186a0a87a4db37bf385df0718968133"
     },
     {
       "path": "artifacts/wireless_session.log",
       "bytes": 2009,
-      "sha256": "35bb4f3764d18ac28427e7fcc94bc8c3167ae5d6beccc2b3b97fc4118bf3d906"
+      "sha256": "45cbd75580687cee34ccf046cdee3aa2b8517294242b3c31e50707f7361df034"
     }
   ]
 }

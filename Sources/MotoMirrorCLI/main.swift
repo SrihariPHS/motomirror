@@ -420,6 +420,11 @@ struct InfoPayload: Encodable {
 // MARK: - Commands
 
 enum CLI {
+    static func makeToolbox() throws -> AgentToolbox {
+        let adb = try ToolLocator.requireADB()
+        return AgentToolbox(adbURL: adb, scrcpyURL: ToolLocator.scrcpy())
+    }
+
     static let usageText = """
     motomirrorctl \(motomirrorCLIVersion) — headless MotoMirror controller
 
@@ -436,6 +441,18 @@ enum CLI {
       motomirrorctl wireless tcpip --serial SERIAL [--port PORT]
       motomirrorctl tailscale peers [--json]
       motomirrorctl tailscale status [--json]
+      motomirrorctl apps list|current|launch|stop|install|uninstall [--serial S] [--json]
+      motomirrorctl ui dump|find|tap|text|key|swipe [--serial S] [--json]
+      motomirrorctl open URL [--serial S]
+      motomirrorctl files push|pull|ls [--serial S] [--json]
+      motomirrorctl shell COMMAND [--serial S]
+      motomirrorctl screen wake|sleep|rotate N [--serial S]
+      motomirrorctl volume get|set N [--serial S]
+      motomirrorctl logcat [-n N] [--serial S]
+      motomirrorctl wait-for app PACKAGE|device [--serial S] [--timeout SEC]
+      motomirrorctl agent tools [--json]
+      motomirrorctl agent call TOOL --args JSON [--json]
+      motomirrorctl mcp
       motomirrorctl version
       motomirrorctl help
 
@@ -454,13 +471,52 @@ enum CLI {
     """
 
     static func run(_ arguments: [String]) async throws -> Int32 {
+        var arguments = arguments
+        let usbOnly = arguments.contains("--usb")
+            || ProcessInfo.processInfo.environment["MOTOMIRROR_TRANSPORT"]?.lowercased() == "usb"
+        arguments.removeAll { $0 == "--usb" }
+        var globalSerial: String?
+        if let index = arguments.firstIndex(of: "--serial"), index + 1 < arguments.count {
+            globalSerial = arguments[index + 1]
+            arguments.removeSubrange(index...index + 1)
+        }
         guard let command = arguments.first else {
             writeStandardError(usageText)
             return 2
         }
-        let rest = Array(arguments.dropFirst())
+        var rest = Array(arguments.dropFirst())
+        let serialCommands: Set<String> = [
+            "info", "screenshot", "mirror", "apps", "ui", "open", "files",
+            "shell", "screen", "volume", "logcat", "wait-for"
+        ]
+        if serialCommands.contains(command) {
+            if usbOnly { rest.append("--usb") }
+            if let globalSerial { rest.append(contentsOf: ["--serial", globalSerial]) }
+        }
 
         switch command {
+        case "apps":
+            return try await AgentCLI.apps(rest, toolbox: makeToolbox())
+        case "ui":
+            return try await AgentCLI.ui(rest, toolbox: makeToolbox())
+        case "files":
+            return try await AgentCLI.files(rest, toolbox: makeToolbox())
+        case "open":
+            return try await AgentCLI.open(rest, toolbox: makeToolbox())
+        case "shell":
+            return try await AgentCLI.shell(rest, toolbox: makeToolbox())
+        case "screen":
+            return try await AgentCLI.screen(rest, toolbox: makeToolbox())
+        case "volume":
+            return try await AgentCLI.volume(rest, toolbox: makeToolbox())
+        case "logcat":
+            return try await AgentCLI.logcat(rest, toolbox: makeToolbox())
+        case "wait-for":
+            return try await AgentCLI.waitFor(rest, toolbox: makeToolbox())
+        case "agent":
+            return try await AgentCLI.agents(rest, toolbox: makeToolbox())
+        case "mcp":
+            return try await MCP.run(toolbox: makeToolbox())
         case "doctor":
             return try await doctor(rest)
         case "devices":
